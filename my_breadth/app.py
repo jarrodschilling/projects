@@ -1,5 +1,6 @@
 import os
 
+import csv
 import sqlite3
 from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
@@ -7,6 +8,7 @@ from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
 from functions import moving_avgs, login_required
+from dictionaries import sectors, industries, sub_sectors, stocks
 
 app = Flask(__name__)
 
@@ -147,7 +149,8 @@ def register():
         password = request.form.get("password")
 
         hash = generate_password_hash(password)
-        cursor.execute("INSERT INTO users (username, hash) VALUES(?, ?)", username, hash)
+        values = (username, hash)
+        cursor.execute("INSERT INTO users (username, hash) VALUES(?, ?)", values)
         return redirect("/")
 
 
