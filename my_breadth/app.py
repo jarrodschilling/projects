@@ -6,7 +6,6 @@ from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
 from functions import moving_avgs, login_required
-from dictionaries import sectors, industries, sub_sectors, stocks
 
 app = Flask(__name__)
 

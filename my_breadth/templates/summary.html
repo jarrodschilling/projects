@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Summary
+{% endblock %}
+
+{% block main %}
+    <h1 style="text-align: center;">Summary</h1>
+    <table class="table" style="margin: 35px;">
+        <thead>
+            <tr>
+                <th scope="col">Portfolio</th>
+                <th scope="col">Above 20EMA</th>
+                <th scope="col">Above 50SMA</th>
+                <th scope="col">Above 200SMA</th>
+            </tr>
+        </thead>
+        <tbody>
+                <tr>
+                    <th scope="row">Sectors</th>
+                    <td class="table-danger">{{ sec_twenty }}</td>
+                    <td class="table-danger">{{ sec_ten }}</td>
+                    <td>{{ sec_forty }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Industries</th>
+                    <td class="table-danger">{{ ind_twenty }}</td>
+                    <td class="table-warning">{{ ind_ten }}</td>
+                    <td>{{ ind_forty }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Sub-Sectors</th>
+                    <td class="table-danger">{{ sub_sec_twenty }}</td>
+                    <td class="table-danger">{{ sub_sec_ten }}</td>
+                    <td>{{ sub_sec_forty }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Total</th>
+                    <td class="table-danger">{{ total_twenty }}</td>
+                    <td class="table-danger">{{ total_ten }}</td>
+                    <td>{{ total_forty }}</td>
+                </tr>
+        </tbody>
+    </table>
+{% endblock %}

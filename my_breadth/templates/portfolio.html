@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Portfolio
+{% endblock %}
+
+{% block main %}
+    <h1 style="text-align: center;">Portfolios</h1>
+    <div class="container">
+
+        <div class="row">
+            <div class="col-md-4">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">{{ portfolio_1_name }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            {% for stock in investments %}
+                            {% if stock["portfolio_id"] == "portfolio1" %}
+                            <tr>
+                                <td>
+                                    {{ stock["symbol"] }}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-4">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">{{ portfolio_2_name }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            {% for stock in investments %}
+                            {% if stock["portfolio_id"] == "portfolio2" %}
+                            <tr>
+                                <td>
+                                    {{ stock["symbol"] }}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-4">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">{{ portfolio_3_name }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            {% for stock in investments %}
+                            {% if stock["portfolio_id"] == "portfolio3" %}
+                            <tr>
+                                <td>
+                                    {{ stock["symbol"] }}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
