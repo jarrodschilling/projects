@@ -9,6 +9,7 @@
     <div class="container">
 
         <div class="row">
+            {% if not portfolio_1_name == "none" %}
             <div class="col-md-4">
                 <table class="table table-bordered">
                     <thead>
@@ -18,10 +19,10 @@
                     </thead>
                     <tbody>
                             {% for stock in investments %}
-                            {% if stock["portfolio_id"] == "portfolio1" %}
+                            {% if stock[5] == "portfolio1" %}
                             <tr>
                                 <td>
-                                    {{ stock["symbol"] }}
+                                    {{ stock[1] }}
                                 </td>
                             </tr>
                             {% endif %}
@@ -29,6 +30,8 @@
                     </tbody>
                 </table>
             </div>
+            {% endif %}
+            {% if not portfolio_2_name == "none" %}
             <div class="col-md-4">
                 <table class="table table-bordered">
                     <thead>
@@ -49,6 +52,8 @@
                     </tbody>
                 </table>
             </div>
+            {% endif %}
+            {% if not portfolio_3_name == "none" %}
             <div class="col-md-4">
                 <table class="table table-bordered">
                     <thead>
@@ -69,6 +74,7 @@
                     </tbody>
                 </table>
             </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

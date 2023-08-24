@@ -1,47 +1,55 @@
 import sqlite3
+from functions import moving_avgs, login_required
 
 name = 2
 
 conn = sqlite3.connect('database.db')
 cursor = conn.cursor()
 
+cursor.execute("SELECT * FROM portfolios WHERE users_id = ?", (name,))
+stocks = cursor.fetchall()
 
-cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio1' AND users_id = ?", (name,))
-portfolio1 = cursor.fetchall()
-
-cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio2' AND users_id = ?", (name,))
-portfolio2 = cursor.fetchall()
-
-cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio3' AND users_id = ?", (name,))
-portfolio3 = cursor.fetchall()
-
-while True:
-    try:
-        portfolio_1_name = portfolio1[0][4]
-        break
-    except IndexError:
-        portfolio_1_name = "none"
-        break
-
-while True:
-    try:
-        portfolio_2_name = portfolio2[0][4]
-        break
-    except IndexError:
-        portfolio_2_name = "none"
-        break
-
-while True:
-    try:
-        portfolio_3_name = portfolio3[0][4]
-        break
-    except IndexError:
-        portfolio_3_name = "none"
-        break
+portfolio1 = []
+portfolio1_ema20 = []
+portfolio1_sma50 = []
+portfolio1_sma200 = []
+portfolio2 = []
+portfolio2_ema20 = []
+portfolio2_sma50 = []
+portfolio2_sma200 = []
+portfolio3 = []
+portfolio3_ema20 = []
+portfolio3_sma50 = []
+portfolio3_sma200 = []
 
 
-#print(portfolio1)
+for stock in stocks:
+    symbol = stock[1]
+    screener = stock[2]
+    exchange = stock[3]
+    portfolio = stock[5]
+    ma = moving_avgs(symbol, screener, exchange)
+    ema20 = ma["COMPUTE"]["EMA20"]
+    sma50 = ma["COMPUTE"]["SMA50"]
+    sma200 = ma["COMPUTE"]["SMA200"]
+    
+    if portfolio == "portfolio1":
+        portfolio1.append(symbol)
+        if ema20 == "BUY":
+            portfolio1_ema20.append(symbol)
+        if sma50 == "BUY":
+            portfolio1_sma50.append(symbol)
+        if sma200 == "BUY":
+            portfolio1_sma200.append(symbol)
+    
 
+
+
+print(portfolio1)
+print(portfolio1_ema20)
+print(portfolio1_sma50)
+print(portfolio1_sma200)
+#print(stocks)
 
 
 conn.commit()
