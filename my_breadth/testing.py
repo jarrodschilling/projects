@@ -42,15 +42,52 @@ for stock in stocks:
         if sma200 == "BUY":
             portfolio1_sma200.append(symbol)
     
+    if portfolio == "portfolio3":
+        portfolio2.append(symbol)
+        if ema20 == "BUY":
+            portfolio2_ema20.append(symbol)
+        if sma50 == "BUY":
+            portfolio2_sma50.append(symbol)
+        if sma200 == "BUY":
+            portfolio2_sma200.append(symbol)
+    
+    if portfolio == "portfolio3":
+        portfolio3.append(symbol)
+        if ema20 == "BUY":
+            portfolio3_ema20.append(symbol)
+        if sma50 == "BUY":
+            portfolio3_sma50.append(symbol)
+        if sma200 == "BUY":
+            portfolio3_sma200.append(symbol)
 
 
 
-print(portfolio1)
-print(portfolio1_ema20)
-print(portfolio1_sma50)
-print(portfolio1_sma200)
 #print(stocks)
 
 
 conn.commit()
 conn.close()
+
+while True:
+            try:
+                portfolio1_name = portfolio1[0][4]
+                break
+            except IndexError:
+                portfolio1_name = "none"
+                break
+
+        while True:
+            try:
+                portfolio2_name = portfolio2[0][4]
+                break
+            except IndexError:
+                portfolio2_name = "none"
+                break
+
+        while True:
+            try:
+                portfolio3_name = portfolio3[0][4]
+                break
+            except IndexError:
+                portfolio3_name = "none"
+                break

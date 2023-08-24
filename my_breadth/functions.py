@@ -38,3 +38,16 @@ def login_required(f):
             return redirect("/login")
         return f(*args, **kwargs)
     return decorated_function
+
+
+def portfolio_names(port):
+    while True:
+        try:
+            port_name = port[0][4]
+            break
+        except IndexError:
+            port_name = "none"
+            break
+
+    return port_name
+

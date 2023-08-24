@@ -7,7 +7,7 @@
 {% block main %}
     <h1 style="text-align: center;">Detail</h1>
     <div class="container">
-        <h2>Sectors</h2>
+        <h2>{{ portfolio1_name }}</h2>
         <div class="row">
             <div class="col-md-4">
                 <table class="table table-bordered">
@@ -17,7 +17,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                            {% for stock in sec_twenty_detail %}
+                            {% for stock in portfolio1_ema20 %}
                             <tr>
                                 <td>
                                     {{ stock }}
@@ -35,7 +35,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                            {% for stock in sec_ten_detail %}
+                            {% for stock in portfolio1_sma50 %}
                             <tr>
                                 <td>
                                     {{ stock }}
@@ -53,7 +53,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                            {% for stock in sec_forty_detail %}
+                            {% for stock in portfolio1_sma200 %}
                             <tr>
                                 <td>
                                     {{ stock }}
@@ -68,7 +68,7 @@
 
 
     <div class="container">
-        <h2>Industries</h2>
+        <h2>{{ portfolio2_name }}</h2>
         <div class="row">
             <div class="col-md-4">
                 <table class="table table-bordered">
@@ -78,7 +78,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                            {% for stock in ind_twenty_detail %}
+                            {% for stock in portfolio2_ema20 %}
                             <tr>
                                 <td>
                                     {{ stock }}
@@ -96,7 +96,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                            {% for stock in ind_ten_detail %}
+                            {% for stock in portfolio2_sma50 %}
                             <tr>
                                 <td>
                                     {{ stock }}
@@ -114,7 +114,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                            {% for stock in ind_forty_detail %}
+                            {% for stock in portfolio2_sma200 %}
                             <tr>
                                 <td>
                                     {{ stock }}
@@ -127,7 +127,7 @@
         </div>
     </div>
     <div class="container">
-        <h2>Sub-Sectors</h2>
+        <h2>{{ portfolio3_name }}</h2>
         <div class="row">
             <div class="col-md-4">
                 <table class="table table-bordered">
@@ -137,7 +137,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                            {% for stock in sub_sec_twenty_detail %}
+                            {% for stock in portfolio3_ema20 %}
                             <tr>
                                 <td>
                                     {{ stock }}
@@ -155,7 +155,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                            {% for stock in sub_sec_ten_detail %}
+                            {% for stock in portfolio3_sma50 %}
                             <tr>
                                 <td>
                                     {{ stock }}
@@ -173,7 +173,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                            {% for stock in sub_sec_forty_detail %}
+                            {% for stock in portfolio3_sma200 %}
                             <tr>
                                 <td>
                                     {{ stock }}

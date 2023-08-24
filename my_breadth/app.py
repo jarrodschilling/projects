@@ -7,7 +7,7 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
-from functions import moving_avgs, login_required
+from functions import moving_avgs, login_required, portfolio_names
 from dictionaries import sectors, industries, sub_sectors, stocks
 
 app = Flask(__name__)
@@ -174,7 +174,77 @@ def index():
 @login_required
 def detail():
     if request.method == "GET":
-        return render_template("detail.html", sec_twenty_detail=sec_twenty_detail, sec_ten_detail=sec_ten_detail, sec_forty_detail=sec_forty_detail, ind_twenty_detail=ind_twenty_detail, ind_ten_detail=ind_ten_detail, ind_forty_detail=ind_forty_detail, sub_sec_twenty_detail=sub_sec_twenty_detail, sub_sec_ten_detail=sub_sec_ten_detail, sub_sec_forty_detail=sub_sec_forty_detail)
+        name = session.get("user_id")
+
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM portfolios WHERE users_id = ?", (name,))
+        stocks = cursor.fetchall()
+
+        cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio1' AND users_id = ?", (name,))
+        portfolio1 = cursor.fetchall()
+        
+        cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio2' AND users_id = ?", (name,))
+        portfolio2 = cursor.fetchall()
+        
+        cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio3' AND users_id = ?", (name,))
+        portfolio3 = cursor.fetchall()
+        
+        portfolio1_name = portfolio_names(portfolio1)
+        portfolio2_name = portfolio_names(portfolio2)
+        portfolio3_name = portfolio_names(portfolio3)
+
+        portfolio1_ema20 = []
+        portfolio1_sma50 = []
+        portfolio1_sma200 = []
+        portfolio2_ema20 = []
+        portfolio2_sma50 = []
+        portfolio2_sma200 = []
+        portfolio3_ema20 = []
+        portfolio3_sma50 = []
+        portfolio3_sma200 = []
+
+
+        for stock in stocks:
+            symbol = stock[1]
+            screener = stock[2]
+            exchange = stock[3]
+            portfolio = stock[5]
+            ma = moving_avgs(symbol, screener, exchange)
+            ema20 = ma["COMPUTE"]["EMA20"]
+            sma50 = ma["COMPUTE"]["SMA50"]
+            sma200 = ma["COMPUTE"]["SMA200"]
+            
+            if portfolio == "portfolio1":
+                if ema20 == "BUY":
+                    portfolio1_ema20.append(symbol)
+                if sma50 == "BUY":
+                    portfolio1_sma50.append(symbol)
+                if sma200 == "BUY":
+                    portfolio1_sma200.append(symbol)
+            
+            if portfolio == "portfolio3":
+                if ema20 == "BUY":
+                    portfolio2_ema20.append(symbol)
+                if sma50 == "BUY":
+                    portfolio2_sma50.append(symbol)
+                if sma200 == "BUY":
+                    portfolio2_sma200.append(symbol)
+            
+            if portfolio == "portfolio3":
+                if ema20 == "BUY":
+                    portfolio3_ema20.append(symbol)
+                if sma50 == "BUY":
+                    portfolio3_sma50.append(symbol)
+                if sma200 == "BUY":
+                    portfolio3_sma200.append(symbol)
+
+        
+        conn.commit()
+        conn.close()
+
+        return render_template("detail.html", portfolio1_name=portfolio1_name, portfolio1_ema20=portfolio1_ema20, portfolio1_sma50=portfolio1_sma50, portfolio1_sma200=portfolio1_sma200, portfolio2_name=portfolio2_name, portfolio2_ema20=portfolio2_ema20, portfolio2_sma50=portfolio2_sma50, portfolio2_sma200=portfolio2_sma200, portfolio3_name=portfolio3_name, portfolio3_ema20=portfolio3_ema20, portfolio3_sma50=portfolio3_sma50, portfolio3_sma200=portfolio3_sma200)
 
 
 @app.route("/create-portfolio", methods=["GET", "POST"])
