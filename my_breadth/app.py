@@ -16,8 +16,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-conn = sqlite3.connect('database.db')
-cursor = conn.cursor()
+
 
 @app.after_request
 def after_request(response):
@@ -113,8 +112,13 @@ def login():
 
         # Ensure password was submitted
 
-        # Query database for username
+        # Query database for username USER/PASS ARE "test"
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
         rows = cursor.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+        cursor.fetchone()
+        conn.commit()
+        conn.close()
 
         # Ensure username exists and password is correct
 
@@ -149,8 +153,11 @@ def register():
         password = request.form.get("password")
 
         hash = generate_password_hash(password)
-        values = (username, hash)
-        cursor.execute("INSERT INTO users (username, hash) VALUES(?, ?)", values)
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO users (username, hash) VALUES(?, ?)", (username, hash))
+        conn.commit()
+        conn.close()
         return redirect("/")
 
 
@@ -189,12 +196,17 @@ def create_portfolio():
         symbol5 = request.form.get("symbol5").upper()
         exchange5 = request.form.get("exchange5").upper()
 
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
         cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", symbol1, 'america', exchange1, portfolio, portfolio_id, name)
         cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", symbol2, 'america', exchange2, portfolio, portfolio_id, name)
         cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", symbol3, 'america', exchange3, portfolio, portfolio_id, name)
         cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", symbol4, 'america', exchange4, portfolio, portfolio_id, name)
         cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", symbol5, 'america', exchange5, portfolio, portfolio_id, name)
 
+        conn.commit()
+        conn.close()
         return redirect("/portfolio_page")
 
 
@@ -202,10 +214,18 @@ def create_portfolio():
 @login_required
 def portfolio_page():
     name = session.get("user_id")
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    
     investments = cursor.execute("SELECT * FROM portfolios WHERE users_id = ?", name)
     portfolio1 = cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio1' AND users_id = ?", name)
     portfolio2 = cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio2' AND users_id = ?", name)
     portfolio3 = cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio3' AND users_id = ?", name)
+    
+    conn.commit()
+    conn.close()
+    
     portfolio_1_name = portfolio1[0]['portfolio']
     portfolio_2_name = portfolio2[0]['portfolio']
     portfolio_3_name = portfolio3[0]['portfolio']
