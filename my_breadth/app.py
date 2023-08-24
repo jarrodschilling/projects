@@ -113,17 +113,18 @@ def login():
         # Ensure password was submitted
 
         # Query database for username USER/PASS ARE "test"
+        username = request.form.get("username")
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        rows = cursor.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
-        cursor.fetchone()
-        conn.commit()
-        conn.close()
+        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+        rows = cursor.fetchall()
 
         # Ensure username exists and password is correct
 
         # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
+        session["user_id"] = rows[0][0]
+        conn.commit()
+        conn.close()
 
         # Redirect user to home page
         return redirect("/")
@@ -199,18 +200,18 @@ def create_portfolio():
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
-        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", symbol1, 'america', exchange1, portfolio, portfolio_id, name)
-        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", symbol2, 'america', exchange2, portfolio, portfolio_id, name)
-        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", symbol3, 'america', exchange3, portfolio, portfolio_id, name)
-        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", symbol4, 'america', exchange4, portfolio, portfolio_id, name)
-        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", symbol5, 'america', exchange5, portfolio, portfolio_id, name)
+        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol1, 'america', exchange1, portfolio, portfolio_id, name))
+        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol2, 'america', exchange2, portfolio, portfolio_id, name))
+        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol3, 'america', exchange3, portfolio, portfolio_id, name))
+        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol4, 'america', exchange4, portfolio, portfolio_id, name))
+        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol5, 'america', exchange5, portfolio, portfolio_id, name))
 
         conn.commit()
         conn.close()
-        return redirect("/portfolio_page")
+        return redirect("/portfolio")
 
 
-@app.route("/portfolio_page", methods=["GET"])
+@app.route("/portfolio", methods=["GET"])
 @login_required
 def portfolio_page():
     name = session.get("user_id")
@@ -218,17 +219,46 @@ def portfolio_page():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     
-    investments = cursor.execute("SELECT * FROM portfolios WHERE users_id = ?", name)
-    portfolio1 = cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio1' AND users_id = ?", name)
-    portfolio2 = cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio2' AND users_id = ?", name)
-    portfolio3 = cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio3' AND users_id = ?", name)
+    cursor.execute("SELECT * FROM portfolios WHERE users_id = ?", (name,))
+    investments = cursor.fetchall()
     
+    cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio1' AND users_id = ?", (name,))
+    portfolio1 = cursor.fetchall()
+    
+    cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio2' AND users_id = ?", (name,))
+    portfolio2 = cursor.fetchall()
+    
+    cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio3' AND users_id = ?", (name,))
+    portfolio3 = cursor.fetchall()
+    
+    
+    
+    while True:
+        try:
+            portfolio_1_name = portfolio1[0][4]
+            break
+        except IndexError:
+            portfolio_1_name = "none"
+            break
+
+    while True:
+        try:
+            portfolio_2_name = portfolio2[0][4]
+            break
+        except IndexError:
+            portfolio_2_name = "none"
+            break
+
+    while True:
+        try:
+            portfolio_3_name = portfolio3[0][4]
+            break
+        except IndexError:
+            portfolio_3_name = "none"
+            break
+
     conn.commit()
     conn.close()
-    
-    portfolio_1_name = portfolio1[0]['portfolio']
-    portfolio_2_name = portfolio2[0]['portfolio']
-    portfolio_3_name = portfolio3[0]['portfolio']
 
     return render_template("portfolio.html", investments=investments, portfolio1=portfolio1, portfolio2=portfolio2, portfolio3=portfolio3, portfolio_1_name=portfolio_1_name, portfolio_2_name=portfolio_2_name, portfolio_3_name=portfolio_3_name)
 
