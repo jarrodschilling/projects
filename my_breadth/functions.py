@@ -51,3 +51,29 @@ def portfolio_names(port):
 
     return port_name
 
+
+def ma_compute(stocks, portfolio_id, ma_avg):
+    portfolio_ma = []
+
+    for stock in stocks:
+        symbol = stock[1]
+        screener = stock[2]
+        exchange = stock[3]
+        portfolio = stock[5]
+        ma = moving_avgs(symbol, screener, exchange)
+        ema20 = ma["COMPUTE"]["EMA20"]
+        sma50 = ma["COMPUTE"]["SMA50"]
+        sma200 = ma["COMPUTE"]["SMA200"]
+        
+
+        if portfolio == portfolio_id:
+            if (ma_avg == "ema20") and (ema20 == "BUY"):
+                portfolio_ma.append(symbol)
+            elif (ma_avg == "sma50") and (sma50 == "BUY"):
+                portfolio_ma.append(symbol)
+            elif (ma_avg == "sma200") and (sma200 == "BUY"):
+                portfolio_ma.append(symbol)
+
+    return portfolio_ma
+        
+

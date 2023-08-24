@@ -68,26 +68,3 @@ for stock in stocks:
 conn.commit()
 conn.close()
 
-while True:
-            try:
-                portfolio1_name = portfolio1[0][4]
-                break
-            except IndexError:
-                portfolio1_name = "none"
-                break
-
-        while True:
-            try:
-                portfolio2_name = portfolio2[0][4]
-                break
-            except IndexError:
-                portfolio2_name = "none"
-                break
-
-        while True:
-            try:
-                portfolio3_name = portfolio3[0][4]
-                break
-            except IndexError:
-                portfolio3_name = "none"
-                break

@@ -7,7 +7,7 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
-from functions import moving_avgs, login_required, portfolio_names
+from functions import moving_avgs, login_required, portfolio_names, ma_compute
 from dictionaries import sectors, industries, sub_sectors, stocks
 
 app = Flask(__name__)
@@ -195,50 +195,15 @@ def detail():
         portfolio2_name = portfolio_names(portfolio2)
         portfolio3_name = portfolio_names(portfolio3)
 
-        portfolio1_ema20 = []
-        portfolio1_sma50 = []
-        portfolio1_sma200 = []
-        portfolio2_ema20 = []
-        portfolio2_sma50 = []
-        portfolio2_sma200 = []
-        portfolio3_ema20 = []
-        portfolio3_sma50 = []
-        portfolio3_sma200 = []
-
-
-        for stock in stocks:
-            symbol = stock[1]
-            screener = stock[2]
-            exchange = stock[3]
-            portfolio = stock[5]
-            ma = moving_avgs(symbol, screener, exchange)
-            ema20 = ma["COMPUTE"]["EMA20"]
-            sma50 = ma["COMPUTE"]["SMA50"]
-            sma200 = ma["COMPUTE"]["SMA200"]
-            
-            if portfolio == "portfolio1":
-                if ema20 == "BUY":
-                    portfolio1_ema20.append(symbol)
-                if sma50 == "BUY":
-                    portfolio1_sma50.append(symbol)
-                if sma200 == "BUY":
-                    portfolio1_sma200.append(symbol)
-            
-            if portfolio == "portfolio3":
-                if ema20 == "BUY":
-                    portfolio2_ema20.append(symbol)
-                if sma50 == "BUY":
-                    portfolio2_sma50.append(symbol)
-                if sma200 == "BUY":
-                    portfolio2_sma200.append(symbol)
-            
-            if portfolio == "portfolio3":
-                if ema20 == "BUY":
-                    portfolio3_ema20.append(symbol)
-                if sma50 == "BUY":
-                    portfolio3_sma50.append(symbol)
-                if sma200 == "BUY":
-                    portfolio3_sma200.append(symbol)
+        portfolio1_ema20 = ma_compute(stocks, "portfolio1", "ema20")
+        portfolio1_sma50 = ma_compute(stocks, "portfolio1", "sma50")
+        portfolio1_sma200 = ma_compute(stocks, "portfolio1", "sma200")
+        portfolio2_ema20 = ma_compute(stocks, "portfolio2", "ema20")
+        portfolio2_sma50 = ma_compute(stocks, "portfolio2", "sma50")
+        portfolio2_sma200 = ma_compute(stocks, "portfolio2", "sma200")
+        portfolio3_ema20 = ma_compute(stocks, "portfolio3", "ema20")
+        portfolio3_sma50 = ma_compute(stocks, "portfolio3", "sma50")
+        portfolio3_sma200 = ma_compute(stocks, "portfolio3", "sma200")
 
         
         conn.commit()
@@ -302,78 +267,96 @@ def portfolio_page():
     portfolio3 = cursor.fetchall()
     
     
-    
-    while True:
-        try:
-            portfolio_1_name = portfolio1[0][4]
-            break
-        except IndexError:
-            portfolio_1_name = "none"
-            break
-
-    while True:
-        try:
-            portfolio_2_name = portfolio2[0][4]
-            break
-        except IndexError:
-            portfolio_2_name = "none"
-            break
-
-    while True:
-        try:
-            portfolio_3_name = portfolio3[0][4]
-            break
-        except IndexError:
-            portfolio_3_name = "none"
-            break
+    portfolio1_name = portfolio_names(portfolio1)
+    portfolio2_name = portfolio_names(portfolio2)
+    portfolio3_name = portfolio_names(portfolio3)
 
     conn.commit()
     conn.close()
 
-    return render_template("portfolio.html", investments=investments, portfolio1=portfolio1, portfolio2=portfolio2, portfolio3=portfolio3, portfolio_1_name=portfolio_1_name, portfolio_2_name=portfolio_2_name, portfolio_3_name=portfolio_3_name)
+    return render_template("portfolio.html", investments=investments, portfolio1=portfolio1, portfolio2=portfolio2, portfolio3=portfolio3, portfolio1_name=portfolio1_name, portfolio2_name=portfolio2_name, portfolio3_name=portfolio3_name)
 
 
 
 @app.route("/summary", methods=["POST", "GET"])
 @login_required
 def summary():
-    total_twenty_list = sec_twenty_list + ind_twenty_list + sub_sec_twenty_list
-    total_ten_list = sec_ten_list + ind_ten_list + sub_sec_ten_list
-    total_forty_list = sec_forty_list + ind_forty_list + sub_sec_forty_list
-    total_length = sec_length + ind_length + sub_sec_length
-    total_twenty = total_twenty_list / total_length
-    total_twenty = "{:.2%}".format(total_twenty)
-    total_ten = total_ten_list / total_length
-    total_ten = "{:.2%}".format(total_ten)
-    total_forty = total_forty_list / total_length
-    total_forty = "{:.2%}".format(total_forty)
+    name = session.get("user_id")
 
-    sec_twenty = sec_twenty_list / sec_length
-    sec_twenty = "{:.2%}".format(sec_twenty)
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
 
-    sec_ten = sec_ten_list / sec_length
-    sec_ten = "{:.2%}".format(sec_ten)
+    cursor.execute("SELECT * FROM portfolios WHERE users_id = ?", (name,))
+    stocks = cursor.fetchall()
 
-    sec_forty = sec_forty_list / sec_length
-    sec_forty = "{:.2%}".format(sec_forty)
+    cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio1' AND users_id = ?", (name,))
+    portfolio1 = cursor.fetchall()
+    
+    cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio2' AND users_id = ?", (name,))
+    portfolio2 = cursor.fetchall()
+    
+    cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio3' AND users_id = ?", (name,))
+    portfolio3 = cursor.fetchall()
+    
+    portfolio1_name = portfolio_names(portfolio1)
+    portfolio2_name = portfolio_names(portfolio2)
+    portfolio3_name = portfolio_names(portfolio3)
 
-    ind_twenty = ind_twenty_list / ind_length
-    ind_twenty = "{:.2%}".format(ind_twenty)
+    portfolio1_ema20 = ma_compute(stocks, "portfolio1", "ema20")
+    portfolio1_sma50 = ma_compute(stocks, "portfolio1", "sma50")
+    portfolio1_sma200 = ma_compute(stocks, "portfolio1", "sma200")
+    portfolio2_ema20 = ma_compute(stocks, "portfolio2", "ema20")
+    portfolio2_sma50 = ma_compute(stocks, "portfolio2", "sma50")
+    portfolio2_sma200 = ma_compute(stocks, "portfolio2", "sma200")
+    portfolio3_ema20 = ma_compute(stocks, "portfolio3", "ema20")
+    portfolio3_sma50 = ma_compute(stocks, "portfolio3", "sma50")
+    portfolio3_sma200 = ma_compute(stocks, "portfolio3", "sma200")
 
-    ind_ten = ind_ten_list / ind_length
-    ind_ten = "{:.2%}".format(ind_ten)
+    conn.commit()
+    conn.close()
 
-    ind_forty = ind_forty_list / ind_length
-    ind_forty = "{:.2%}".format(ind_forty)
+    total_ema20_list = portfolio1_ema20 + portfolio2_ema20 + portfolio3_ema20
+    total_sma50_list = portfolio1_sma50 + portfolio2_sma50 + portfolio3_sma50
+    total_sma200_list = portfolio1_sma200 + portfolio2_sma200 + portfolio3_sma200
+    total_length = len(portfolio1) + len(portfolio2) + len(portfolio3)
+    
+    # NEEDS A DEBUG
+    total_ema20 = len(total_ema20_list) / total_length
+    total_ema20 = "{:.2%}".format(total_ema20)
+    total_sma50 = len(total_sma50_list) / total_length
+    total_sma50 = "{:.2%}".format(total_sma50)
+    total_sma200 = len(total_sma200_list) / total_length
+    total_sma200 = "{:.2%}".format(total_sma200)
 
-    sub_sec_twenty = sub_sec_twenty_list / sub_sec_length
-    sub_sec_twenty = "{:.2%}".format(sub_sec_twenty)
+    if not len(portfolio1) == 0:
+        portfolio1_ema20_summary = len(portfolio1_ema20) / len(portfolio1)
+        portfolio1_ema20_summary = "{:.2%}".format(portfolio1_ema20_summary)
 
-    sub_sec_ten = sub_sec_ten_list / sub_sec_length
-    sub_sec_ten = "{:.2%}".format(sub_sec_ten)
+        portfolio1_sma50_summary = len(portfolio1_sma50) / len(portfolio1)
+        portfolio1_sma50_summary = "{:.2%}".format(portfolio1_sma50_summary)
 
-    sub_sec_forty = sub_sec_forty_list / sub_sec_length
-    sub_sec_forty = "{:.2%}".format(sub_sec_forty)
+        portfolio1_sma200_summary = len(portfolio1_sma200) / len(portfolio1)
+        portfolio1_sma200_summary = "{:.2%}".format(portfolio1_sma200_summary)
+
+    if not len(portfolio2) == 0:
+        portfolio2_ema20_summary = len(portfolio2_ema20) / len(portfolio2)
+        portfolio2_ema20_summary = "{:.2%}".format(portfolio2_ema20_summary)
+
+        portfolio2_sma50_summary = len(portfolio2_sma50) / len(portfolio2)
+        portfolio2_sma50_summary = "{:.2%}".format(portfolio2_sma50_summary)
+
+        portfolio2_sma200_summary = len(portfolio2_sma200) / len(portfolio2)
+        portfolio2_sma200_summary = "{:.2%}".format(portfolio2_sma200_summary)
+
+    if not len(portfolio3) == 0:
+        portfolio3_ema20_summary = len(portfolio3_ema20) / len(portfolio3)
+        portfolio3_ema20_summary = "{:.2%}".format(portfolio3_ema20_summary)
+
+        portfolio3_sma50_summary = len(portfolio3_sma50) / len(portfolio3)
+        portfolio3_sma50_summary = "{:.2%}".format(portfolio3_sma50_summary)
+
+        portfolio3_sma200_summary = len(portfolio3_sma200) / len(portfolio3)
+        portfolio3_sma200_summary = "{:.2%}".format(portfolio3_sma200_summary)
 
     if request.method == "GET":
-        return render_template("summary.html", total_twenty=total_twenty, total_ten=total_ten, total_forty=total_forty, sec_twenty=sec_twenty, sec_ten=sec_ten, sec_forty=sec_forty, ind_twenty=ind_twenty, ind_ten=ind_ten, ind_forty=ind_forty, sub_sec_twenty=sub_sec_twenty, sub_sec_ten=sub_sec_ten, sub_sec_forty=sub_sec_forty)
+        return render_template("summary.html", total_ema20=total_ema20, total_sma50=total_sma50, total_sma200=total_sma200, portfolio1_ema20_summary=portfolio1_ema20_summary, portfolio1_sma50_summary=portfolio1_sma50_summary, portfolio1_sma200_summary=portfolio1_sma200_summary, portfolio2_ema20_summary=portfolio2_ema20_summary, portfolio2_sma50_summary=portfolio2_sma50_summary, portfolio2_sma200_summary=portfolio2_sma200_summary, portfolio3_ema20_summary=portfolio3_ema20_summary, portfolio3_sma50_summary=portfolio3_sma50_summary, portfolio3_sma200_summary=portfolio3_sma200_summary, portfolio1_name=portfolio1_name, portfolio2_name=portfolio2_name, portfolio3_name=portfolio3_name)
