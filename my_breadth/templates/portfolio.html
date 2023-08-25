@@ -41,10 +41,10 @@
                     </thead>
                     <tbody>
                             {% for stock in investments %}
-                            {% if stock["portfolio_id"] == "portfolio2" %}
+                            {% if stock[5] == "portfolio2" %}
                             <tr>
                                 <td>
-                                    {{ stock["symbol"] }}
+                                    {{ stock[1] }}
                                 </td>
                             </tr>
                             {% endif %}
@@ -63,10 +63,10 @@
                     </thead>
                     <tbody>
                             {% for stock in investments %}
-                            {% if stock["portfolio_id"] == "portfolio3" %}
+                            {% if stock[5] == "portfolio3" %}
                             <tr>
                                 <td>
-                                    {{ stock["symbol"] }}
+                                    {{ stock[1] }}
                                 </td>
                             </tr>
                             {% endif %}
