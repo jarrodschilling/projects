@@ -328,35 +328,62 @@ def summary():
     total_sma200 = len(total_sma200_list) / total_length
     total_sma200 = "{:.2%}".format(total_sma200)
 
-    if not len(portfolio1) == 0:
-        portfolio1_ema20_summary = len(portfolio1_ema20) / len(portfolio1)
-        portfolio1_ema20_summary = "{:.2%}".format(portfolio1_ema20_summary)
+    
+    while True:
+        try:
+            portfolio1_ema20_summary = len(portfolio1_ema20) / len(portfolio1)
+            portfolio1_ema20_summary = "{:.2%}".format(portfolio1_ema20_summary)
 
-        portfolio1_sma50_summary = len(portfolio1_sma50) / len(portfolio1)
-        portfolio1_sma50_summary = "{:.2%}".format(portfolio1_sma50_summary)
+            portfolio1_sma50_summary = len(portfolio1_sma50) / len(portfolio1)
+            portfolio1_sma50_summary = "{:.2%}".format(portfolio1_sma50_summary)
 
-        portfolio1_sma200_summary = len(portfolio1_sma200) / len(portfolio1)
-        portfolio1_sma200_summary = "{:.2%}".format(portfolio1_sma200_summary)
+            portfolio1_sma200_summary = len(portfolio1_sma200) / len(portfolio1)
+            portfolio1_sma200_summary = "{:.2%}".format(portfolio1_sma200_summary)
+            break
+        except ZeroDivisionError:
+            portfolio1_ema20_summary = "none"
+            portfolio1_sma50_summary = "none"
+            portfolio1_sma200_summary = "none" 
+            break
 
-    if not len(portfolio2) == 0:
-        portfolio2_ema20_summary = len(portfolio2_ema20) / len(portfolio2)
-        portfolio2_ema20_summary = "{:.2%}".format(portfolio2_ema20_summary)
+    while True:
+        try:
+            portfolio2_ema20_summary = len(portfolio2_ema20) / len(portfolio2)
+            portfolio2_ema20_summary = "{:.2%}".format(portfolio2_ema20_summary)
 
-        portfolio2_sma50_summary = len(portfolio2_sma50) / len(portfolio2)
-        portfolio2_sma50_summary = "{:.2%}".format(portfolio2_sma50_summary)
+            portfolio2_sma50_summary = len(portfolio2_sma50) / len(portfolio2)
+            portfolio2_sma50_summary = "{:.2%}".format(portfolio2_sma50_summary)
 
-        portfolio2_sma200_summary = len(portfolio2_sma200) / len(portfolio2)
-        portfolio2_sma200_summary = "{:.2%}".format(portfolio2_sma200_summary)
+            portfolio2_sma200_summary = len(portfolio2_sma200) / len(portfolio2)
+            portfolio2_sma200_summary = "{:.2%}".format(portfolio2_sma200_summary)
+            break
+        except ZeroDivisionError:
+            portfolio2_ema20_summary = "none"
+            portfolio2_sma50_summary = "none"
+            portfolio2_sma200_summary = "none" 
+            break
+    
+    while True:
+        try:
+            portfolio3_ema20_summary = len(portfolio3_ema20) / len(portfolio3)
+            portfolio3_ema20_summary = "{:.2%}".format(portfolio3_ema20_summary)
 
-    if not len(portfolio3) == 0:
-        portfolio3_ema20_summary = len(portfolio3_ema20) / len(portfolio3)
-        portfolio3_ema20_summary = "{:.2%}".format(portfolio3_ema20_summary)
+            portfolio3_sma50_summary = len(portfolio3_sma50) / len(portfolio3)
+            portfolio3_sma50_summary = "{:.2%}".format(portfolio3_sma50_summary)
 
-        portfolio3_sma50_summary = len(portfolio3_sma50) / len(portfolio3)
-        portfolio3_sma50_summary = "{:.2%}".format(portfolio3_sma50_summary)
+            portfolio3_sma200_summary = len(portfolio3_sma200) / len(portfolio3)
+            portfolio3_sma200_summary = "{:.2%}".format(portfolio3_sma200_summary)
+            break
+        except ZeroDivisionError:
+            portfolio3_ema20_summary = "none"
+            portfolio3_sma50_summary = "none"
+            portfolio3_sma200_summary = "none" 
+            break
+    
+    
 
-        portfolio3_sma200_summary = len(portfolio3_sma200) / len(portfolio3)
-        portfolio3_sma200_summary = "{:.2%}".format(portfolio3_sma200_summary)
+
+
 
     if request.method == "GET":
         return render_template("summary.html", total_ema20=total_ema20, total_sma50=total_sma50, total_sma200=total_sma200, portfolio1_ema20_summary=portfolio1_ema20_summary, portfolio1_sma50_summary=portfolio1_sma50_summary, portfolio1_sma200_summary=portfolio1_sma200_summary, portfolio2_ema20_summary=portfolio2_ema20_summary, portfolio2_sma50_summary=portfolio2_sma50_summary, portfolio2_sma200_summary=portfolio2_sma200_summary, portfolio3_ema20_summary=portfolio3_ema20_summary, portfolio3_sma50_summary=portfolio3_sma50_summary, portfolio3_sma200_summary=portfolio3_sma200_summary, portfolio1_name=portfolio1_name, portfolio2_name=portfolio2_name, portfolio3_name=portfolio3_name)

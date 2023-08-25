@@ -16,28 +16,34 @@
             </tr>
         </thead>
         <tbody>
+                {% if not portfolio1_ema20_summary == "none" %}
                 <tr>
                     <th scope="row">{{ portfolio1_name }}</th>
-                    <td class="table-danger">{{ portfolio1_ema20_summary }}</td>
-                    <td class="table-danger">{{ portfolio1_sma50_summary }}</td>
+                    <td>{{ portfolio1_ema20_summary }}</td>
+                    <td>{{ portfolio1_sma50_summary }}</td>
                     <td>{{ portfolio1_sma200_summary }}</td>
                 </tr>
+                {% endif %}
+                {% if not portfolio2_ema20_summary == "none" %}
                 <tr>
                     <th scope="row">{{ portfolio2_name }}</th>
-                    <td class="table-danger">{{ portfolio2_ema20_summary }}</td>
-                    <td class="table-warning">{{ portfolio2_sma50_summary }}</td>
+                    <td>{{ portfolio2_ema20_summary }}</td>
+                    <td>{{ portfolio2_sma50_summary }}</td>
                     <td>{{ portfolio2_sma200_summary }}</td>
                 </tr>
+                {% endif %}
+                {% if not portfolio3_ema20_summary == "none" %}
                 <tr>
                     <th scope="row">{{ portfolio3_name }}</th>
-                    <td class="table-danger">{{ portfolio3_ema20_summary }}</td>
-                    <td class="table-danger">{{ portfolio3_sma50_summary }}</td>
+                    <td>{{ portfolio3_ema20_summary }}</td>
+                    <td>{{ portfolio3_sma50_summary }}</td>
                     <td>{{ portfolio3_sma200_summary }}</td>
                 </tr>
+                {% endif %}
                 <tr>
                     <th scope="row">Total</th>
-                    <td class="table-danger">{{ total_ema20 }}</td>
-                    <td class="table-danger">{{ total_sma50 }}</td>
+                    <td>{{ total_ema20 }}</td>
+                    <td>{{ total_sma50 }}</td>
                     <td>{{ total_sma200 }}</td>
                 </tr>
         </tbody>
