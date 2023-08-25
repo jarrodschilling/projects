@@ -169,7 +169,6 @@ def index():
 
 
 
-
 @app.route("/detail", methods=["POST", "GET"])
 @login_required
 def detail():
