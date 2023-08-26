@@ -12,6 +12,9 @@ from dictionaries import sectors, industries, sub_sectors, stocks
 
 app = Flask(__name__)
 
+# flask --app example_app.py --debug run
+
+
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
@@ -26,76 +29,6 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
-
-sec_twenty_list = 0
-sec_ten_list = 0
-sec_forty_list = 0
-sec_length = 0
-sec_twenty_detail = []
-sec_ten_detail = []
-sec_forty_detail = []
-
-ind_twenty_list = 0
-ind_ten_list = 0
-ind_forty_list = 0
-ind_length = 0
-ind_twenty_detail = []
-ind_ten_detail = []
-ind_forty_detail = []
-
-sub_sec_twenty_list = 0
-sub_sec_ten_list = 0
-sub_sec_forty_list = 0
-sub_sec_length = 0
-sub_sec_twenty_detail = []
-sub_sec_ten_detail = []
-sub_sec_forty_detail = []
-
-for stock in stocks:
-    symbol = stocks[stock]["symbol"]
-    screener = stocks[stock]["screener"]
-    exchange = stocks[stock]["exchange"]
-    portfolio = stocks[stock]["portfolio"]
-    ma = moving_avgs(symbol, screener, exchange)
-    twenty = ma["COMPUTE"]["EMA20"]
-    ten = ma["COMPUTE"]["SMA50"]
-    forty = ma["COMPUTE"]["SMA200"]
-
-    if portfolio == "sectors":
-        sec_length += 1
-        if twenty == "BUY":
-            sec_twenty_list += 1
-            sec_twenty_detail.append(stock)
-        if ten == "BUY":
-            sec_ten_list += 1
-            sec_ten_detail.append(stock)
-        if forty == "BUY":
-            sec_forty_list += 1
-            sec_forty_detail.append(stock)
-
-    elif portfolio == "industries":
-        ind_length += 1
-        if twenty == "BUY":
-            ind_twenty_list += 1
-            ind_twenty_detail.append(stock)
-        if ten == "BUY":
-            ind_ten_list += 1
-            ind_ten_detail.append(stock)
-        if forty == "BUY":
-            ind_forty_list += 1
-            ind_forty_detail.append(stock)
-
-    elif portfolio == "sub_sectors":
-        sub_sec_length += 1
-        if twenty == "BUY":
-            sub_sec_twenty_list += 1
-            sub_sec_twenty_detail.append(stock)
-        if ten == "BUY":
-            sub_sec_ten_list += 1
-            sub_sec_ten_detail.append(stock)
-        if forty == "BUY":
-            sub_sec_forty_list += 1
-            sub_sec_forty_detail.append(stock)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -217,6 +150,7 @@ def create_portfolio():
     if request.method == "GET":
         return render_template("create-portfolio.html")
     else:
+        # Pull data from user form
         name = session.get("user_id")
         portfolio = request.form.get("portfolio")
         portfolio_id = request.form.get("portfolio_id")
@@ -231,14 +165,23 @@ def create_portfolio():
         symbol5 = request.form.get("symbol5").upper()
         exchange5 = request.form.get("exchange5").upper()
 
+        # Check symbols
+        
+
+        # INSERT stocks into database
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
-        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol1, 'america', exchange1, portfolio, portfolio_id, name))
-        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol2, 'america', exchange2, portfolio, portfolio_id, name))
-        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol3, 'america', exchange3, portfolio, portfolio_id, name))
-        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol4, 'america', exchange4, portfolio, portfolio_id, name))
-        cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol5, 'america', exchange5, portfolio, portfolio_id, name))
+        if symbol1 and exchange1:
+            cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol1, 'america', exchange1, portfolio, portfolio_id, name))
+        if symbol2 and exchange2:
+            cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol2, 'america', exchange2, portfolio, portfolio_id, name))
+        if symbol3 and exchange3:
+            cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol3, 'america', exchange3, portfolio, portfolio_id, name))
+        if symbol4 and exchange4:
+            cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol4, 'america', exchange4, portfolio, portfolio_id, name))
+        if symbol5 and exchange5:
+            cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol5, 'america', exchange5, portfolio, portfolio_id, name))
 
         conn.commit()
         conn.close()
@@ -319,15 +262,24 @@ def summary():
     total_sma200_list = portfolio1_sma200 + portfolio2_sma200 + portfolio3_sma200
     total_length = len(portfolio1) + len(portfolio2) + len(portfolio3)
     
-    # NEEDS A DEBUG
-    total_ema20 = len(total_ema20_list) / total_length
-    total_ema20 = "{:.2%}".format(total_ema20)
-    total_sma50 = len(total_sma50_list) / total_length
-    total_sma50 = "{:.2%}".format(total_sma50)
-    total_sma200 = len(total_sma200_list) / total_length
-    total_sma200 = "{:.2%}".format(total_sma200)
 
-    
+    while True:
+        try:
+            total_ema20 = len(total_ema20_list) / total_length
+            total_ema20 = "{:.2%}".format(total_ema20)
+
+            total_sma50 = len(total_sma50_list) / total_length
+            total_sma50 = "{:.2%}".format(total_sma50)
+
+            total_sma200 = len(total_sma200_list) / total_length
+            total_sma200 = "{:.2%}".format(total_sma200)
+            break
+        except ZeroDivisionError:
+            total_ema20 = "none"
+            total_sma50 = "none"
+            total_sma200 = "none" 
+            break
+
     while True:
         try:
             portfolio1_ema20_summary = len(portfolio1_ema20) / len(portfolio1)
@@ -379,10 +331,6 @@ def summary():
             portfolio3_sma200_summary = "none" 
             break
     
-    
-
-
-
 
     if request.method == "GET":
         return render_template("summary.html", total_ema20=total_ema20, total_sma50=total_sma50, total_sma200=total_sma200, portfolio1_ema20_summary=portfolio1_ema20_summary, portfolio1_sma50_summary=portfolio1_sma50_summary, portfolio1_sma200_summary=portfolio1_sma200_summary, portfolio2_ema20_summary=portfolio2_ema20_summary, portfolio2_sma50_summary=portfolio2_sma50_summary, portfolio2_sma200_summary=portfolio2_sma200_summary, portfolio3_ema20_summary=portfolio3_ema20_summary, portfolio3_sma50_summary=portfolio3_sma50_summary, portfolio3_sma200_summary=portfolio3_sma200_summary, portfolio1_name=portfolio1_name, portfolio2_name=portfolio2_name, portfolio3_name=portfolio3_name)
