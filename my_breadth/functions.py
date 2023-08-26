@@ -77,3 +77,9 @@ def ma_compute(stocks, portfolio_id, ma_avg):
     return portfolio_ma
         
 
+def symbol_check(symbol, exchange):
+    try:
+        return moving_avgs(symbol, "america", exchange)
+    except Exception as e:
+        return redirect("/error_page")
+

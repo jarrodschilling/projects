@@ -1,5 +1,5 @@
 import sqlite3
-from functions import moving_avgs, login_required
+from functions import moving_avgs, login_required, symbol_check
 from tradingview_ta import TA_Handler, TradingView, Exchange, Interval, get_multiple_analysis
 from yahooquery import Ticker
 
@@ -14,25 +14,15 @@ symbol3 = "XLF"
 exchange3 = "AMEX"
 
 symbols = [
-    ["XAR", "AMEX"],
+    ["XAR", "NYSE"],
     ["JPM", "NYSE"],
     ["XLF", "AMEX"],
 ]
 
-#symbol1 = Ticker(symbol1)
-
-#print(symbol1.price)
-
-def symbol_check(symbol, exchange):
-    try:
-        print(moving_avgs(symbol, "america", exchange))
-    except Exception as e:
-        print(f"Symbol: {symbol} or Exchange: {exchange} not found")
 
 
-#for i in symbols:
-    #print(symbols[i][0], symbols[i][1])
 
-print(symbols[0][0], symbols[0][1])
 
+for i in range(0, len(symbols)):
+    symbol_check(symbols[i][0], symbols[i][1])
 

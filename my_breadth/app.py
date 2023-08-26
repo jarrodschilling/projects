@@ -7,7 +7,7 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
-from functions import moving_avgs, login_required, portfolio_names, ma_compute
+from functions import moving_avgs, login_required, portfolio_names, ma_compute, symbol_check
 from dictionaries import sectors, industries, sub_sectors, stocks
 
 app = Flask(__name__)
@@ -154,39 +154,32 @@ def create_portfolio():
         name = session.get("user_id")
         portfolio = request.form.get("portfolio")
         portfolio_id = request.form.get("portfolio_id")
-        symbol1 = request.form.get("symbol1").upper()
-        exchange1 = request.form.get("exchange1").upper()
-        symbol2 = request.form.get("symbol2").upper()
-        exchange2 = request.form.get("exchange2").upper()
-        symbol3 = request.form.get("symbol3").upper()
-        exchange3 = request.form.get("exchange3").upper()
-        symbol4 = request.form.get("symbol4").upper()
-        exchange4 = request.form.get("exchange4").upper()
-        symbol5 = request.form.get("symbol5").upper()
-        exchange5 = request.form.get("exchange5").upper()
+        symbols = request.form.getlist("symbols[]")
+        exchanges = request.form.getlist("exchanges[]")
+        screener = "america"
 
-        # Check symbols
+        stock_data = list(zip(symbols, exchanges))
+        stock_data_upper = [(symbol.upper(), exchange.upper()) for symbol, exchange in stock_data]
         
+        # check to make sure symbol + exchange are correct
+        for i in range(0, len(stock_data_upper)):
+            symbol_check(stock_data_upper[i][0], stock_data_upper[i][1])
 
         # INSERT stocks into database
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
-        if symbol1 and exchange1:
-            cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol1, 'america', exchange1, portfolio, portfolio_id, name))
-        if symbol2 and exchange2:
-            cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol2, 'america', exchange2, portfolio, portfolio_id, name))
-        if symbol3 and exchange3:
-            cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol3, 'america', exchange3, portfolio, portfolio_id, name))
-        if symbol4 and exchange4:
-            cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol4, 'america', exchange4, portfolio, portfolio_id, name))
-        if symbol5 and exchange5:
-            cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (symbol5, 'america', exchange5, portfolio, portfolio_id, name))
-
+        insert_data = [(symbol, screener, exchange, portfolio, portfolio_id, name) for symbol, exchange in stock_data_upper]
+        cursor.executemany("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", insert_data)
+        
         conn.commit()
         conn.close()
         return redirect("/portfolio")
 
+@app.route("/error-page", methods=["GET"])
+@login_required
+def error_page():
+    return render_template("/error-page")
 
 @app.route("/portfolio", methods=["GET"])
 @login_required
