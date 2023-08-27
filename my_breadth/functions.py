@@ -1,6 +1,6 @@
 from tradingview_ta import TA_Handler, Exchange, Interval
 from functools import wraps
-from flask import session, redirect
+from flask import session, redirect, render_template
 
 
 def moving_avgs(symbol, screener, exchange):
@@ -79,7 +79,15 @@ def ma_compute(stocks, portfolio_id, ma_avg):
 
 def symbol_check(symbol, exchange):
     try:
-        return moving_avgs(symbol, "america", exchange)
+        moving_avgs(symbol, "america", exchange)
+        return True
     except Exception as e:
-        return redirect("/error_page")
+        return False
 
+def apology(message, code=400):
+    def escape(s):
+        for old, new in [("-", "--"), (" ", "-"), ("_", "__"), ("?", "~q"),
+                         ("%", "~p"), ("#", "~h"), ("/", "~s"), ("\"", "''")]:
+            s = s.replace(old, new)
+        return s
+    return render_template("apology.html", top=code, bottom=escape(message)), code

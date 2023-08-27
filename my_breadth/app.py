@@ -7,7 +7,7 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
-from functions import moving_avgs, login_required, portfolio_names, ma_compute, symbol_check
+from functions import moving_avgs, login_required, portfolio_names, ma_compute, symbol_check, apology
 from dictionaries import sectors, industries, sub_sectors, stocks
 
 app = Flask(__name__)
@@ -161,16 +161,19 @@ def create_portfolio():
         stock_data = list(zip(symbols, exchanges))
         stock_data_upper = [(symbol.upper(), exchange.upper()) for symbol, exchange in stock_data]
         
-        # check to make sure symbol + exchange are correct
-        for i in range(0, len(stock_data_upper)):
-            symbol_check(stock_data_upper[i][0], stock_data_upper[i][1])
-
-        # INSERT stocks into database
+        # INSERT Stocks into database
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
-        insert_data = [(symbol, screener, exchange, portfolio, portfolio_id, name) for symbol, exchange in stock_data_upper]
-        cursor.executemany("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", insert_data)
+
+        for i in range(0, len(stock_data_upper)):
+            #check to make sure both fields are completed
+            if stock_data_upper[i][0] != "" or stock_data_upper[i][1] != "":
+                # check to make sure symbol + exchange are correct for TV API
+                if (symbol_check(stock_data_upper[i][0], stock_data_upper[i][1])) == True:
+                    cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (stock_data_upper[i][0], screener, stock_data_upper[i][1], portfolio, portfolio_id, name))
+                else:
+                    return apology("Symbol or Exchange Incorrect")
         
         conn.commit()
         conn.close()
@@ -179,7 +182,7 @@ def create_portfolio():
 @app.route("/error-page", methods=["GET"])
 @login_required
 def error_page():
-    return render_template("/error-page")
+    return render_template("/error-page.html")
 
 @app.route("/portfolio", methods=["GET"])
 @login_required
