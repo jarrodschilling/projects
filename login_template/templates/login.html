@@ -5,5 +5,40 @@
 {% endblock %}
 
 {% block main %}
-Hello
+<div class="col-md-4 col-md-offset-4">  
+    <form action="/login" method="POST">
+        <h2>Log In</h2>
+        <div class="form-group">
+            <label for="email" class="form-label">Email address</label>
+            <input
+                type="text" 
+                class="form-control" 
+                id="email" 
+                name="email"
+                aria-describedby="emailHelp"
+                placeholder="Enter email"
+            />
+            <div id="emailHelp" class="form-text">Use this for detailed instructions</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <input
+                type="password" 
+                class="form-control" 
+                id="password" 
+                name="password"
+                placeholder="Password"
+            />
+            <div id="passwordHelp" class="form-text">Do not use a password used on other sites</div>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="remember">
+            <label class="form-check-label" for="remember">Remember Me</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Log In</button>
+    </form>
+</div>
+
 {% endblock %}
