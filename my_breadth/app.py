@@ -165,7 +165,11 @@ def create_portfolio():
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
+        # Check to see if portfolio_id already exists for user
+        
 
+        error_symbol_list = []
+        error_exchange_list = []
         for i in range(0, len(stock_data_upper)):
             #check to make sure both fields are completed
             if stock_data_upper[i][0] != "" or stock_data_upper[i][1] != "":
@@ -173,10 +177,17 @@ def create_portfolio():
                 if (symbol_check(stock_data_upper[i][0], stock_data_upper[i][1])) == True:
                     cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (stock_data_upper[i][0], screener, stock_data_upper[i][1], portfolio, portfolio_id, name))
                 else:
-                    return apology("Symbol or Exchange Incorrect")
+                    error_symbol_list.append(stock_data_upper[i][0])
+                    error_exchange_list.append(stock_data_upper[i][1])
         
         conn.commit()
         conn.close()
+        
+        # if errors in symbol or exchange found, let the user know what they are
+        if len(error_symbol_list) != 0 or len(error_exchange_list) != 0:
+            return apology(f"Incorrect symbols: {error_symbol_list} or incorrect exchanges: {error_exchange_list}. All other symbols added to portfolio {portfolio}")
+        
+
         return redirect("/portfolio")
 
 @app.route("/error-page", methods=["GET"])
