@@ -1,25 +1,18 @@
-import os
-
-import csv
 import sqlite3
 from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
-import datetime
-from functions import moving_avgs, login_required, portfolio_names, ma_compute, symbol_check, apology
-from dictionaries import sectors, industries, sub_sectors, stocks
+from functions import moving_avgs, login_required, portfolio_names, ma_compute, symbol_check, register_errors, login_errors, is_valid_password, create_errors
+# flask --app example_app.py --debug run
 
 app = Flask(__name__)
 
-# flask --app example_app.py --debug run
 
-
+# -------------- Setup Session/Cache --------------------------------------------------------------------
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-
-
 
 @app.after_request
 def after_request(response):
@@ -30,77 +23,134 @@ def after_request(response):
     return response
 
 
+# -------------- LOGIN PAGE [GET] --------------------------------------------------------------------
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/login", methods=["GET"])
 def login():
-    """Log user in"""
+    return render_template("login.html")
+
+
+# -------------- LOGIN USER [POST] --------------------------------------------------------------------
+
+@app.route("/login", methods=["POST"])
+def login_post():
 
     # Forget any user_id
     session.clear()
 
-    # User reached route via POST (as by submitting a form via POST)
-    if request.method == "POST":
+    # Get user info from forms
+    username = request.form.get("username")
+    password = request.form.get("password")
 
-        # Ensure username was submitted
+    # Ensure username was submitted
+    if not username:
+        login_errors("Username not entered")
 
-        # Ensure password was submitted
+    # Ensure password was submitted
+    if not password:
+        login_errors("Password not entered")
 
-        # Query database for username USER/PASS ARE "test"
-        username = request.form.get("username")
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
-        rows = cursor.fetchall()
+    # Query database for username
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
 
-        # Ensure username exists and password is correct
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    rows = cursor.fetchall()
 
-        # Remember which user has logged in
-        session["user_id"] = rows[0][0]
-        conn.commit()
-        conn.close()
+    # Ensure username exists and password is correct
+    if len(rows) != 1 or not check_password_hash(rows[0][2], password):
+        return login_errors("Invalid username and/or password")
 
-        # Redirect user to home page
-        return redirect("/")
+    # Remember which user has logged in
+    session["user_id"] = rows[0][0]
+    conn.commit()
+    conn.close()
 
-    # User reached route via GET (as by clicking a link or via redirect)
-    else:
-        return render_template("login.html")
+    return redirect('/portfolio')
 
+
+# -------------- Logout User --------------------------------------------------------------------
 
 @app.route("/logout")
+@login_required
 def logout():
-    """Log user out"""
 
     # Forget any user_id
     session.clear()
 
-    # Redirect user to login form
+    # Redirect user to home page
     return redirect("/")
 
 
-@app.route("/register", methods=["GET", "POST"])
+# ------ REGISTRATION PAGE [GET] ---------------------------------------------------------------
+
+@app.route("/register")
 def register():
-    if request.method == "GET":
-        return render_template("register.html")
-    else:
-        username = request.form.get("username")
-        password = request.form.get("password")
+    return render_template("register.html")
 
-        hash = generate_password_hash(password)
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (username, hash) VALUES(?, ?)", (username, hash))
-        conn.commit()
-        conn.close()
-        return redirect("/")
 
+# ------ REGISTER USER [POST] ------------------------------------------------------------------
+
+@app.route("/register", methods=["POST"])
+def signup_post():
+    username = request.form.get("username")
+    password = request.form.get("password")
+    confirm_password = request.form.get("confirmpassword")
+
+    # Check if username already exists in database
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT username FROM users")
+    usernames = cursor.fetchall()
+    conn.commit()
+    conn.close()
+
+    for user in usernames:
+        if user[0] == username:
+            return register_errors("That username already exists, please choose another one")
+       
+    # Check that username and password are each between 5 and 25 characters long
+    if len(username) < 5:
+        return register_errors("Username must be atleast 5 characters long")
+    if len(username) > 25:
+        return register_errors("Username cannot be more than 25 characters long")
+    if len(password) < 5:
+        return register_errors("Password must be atleast 5 characters long")
+    if len(username) > 25:
+        return register_errors("Password cannot be more than 25 characters long") 
+
+    # Check that password has one number and one special character
+    password_check = password
+    if not is_valid_password(password_check):
+        return register_errors("Password must contain at least 1 number, 1 letter, and 1 special character")
+
+    # Check that passwords match
+    if password != confirm_password:
+        return register_errors("Passwords do not match")
+
+    # All checks complete, hash password
+    hash = generate_password_hash(password)
+
+    # INSERT USER INTO users database table
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    cursor.execute("INSERT INTO users (username, hash) VALUES(?, ?)", (username, hash))
+    
+    conn.commit()
+    conn.close()
+
+    return redirect('/login')
+
+
+# -------------- HOME PAGE ------------------------------------------------------------------------------
 
 @app.route("/", methods=["GET"])
-@login_required
 def index():
     return render_template("index.html")
 
 
+# -------------- DETAILED BREADTH PAGE --------------------------------------------------------------------
 
 @app.route("/detail", methods=["POST", "GET"])
 @login_required
@@ -144,6 +194,8 @@ def detail():
         return render_template("detail.html", portfolio1_name=portfolio1_name, portfolio1_ema20=portfolio1_ema20, portfolio1_sma50=portfolio1_sma50, portfolio1_sma200=portfolio1_sma200, portfolio2_name=portfolio2_name, portfolio2_ema20=portfolio2_ema20, portfolio2_sma50=portfolio2_sma50, portfolio2_sma200=portfolio2_sma200, portfolio3_name=portfolio3_name, portfolio3_ema20=portfolio3_ema20, portfolio3_sma50=portfolio3_sma50, portfolio3_sma200=portfolio3_sma200)
 
 
+# -------------- CREATE PORTFOLIO --------------------------------------------------------------------
+
 @app.route("/create-portfolio", methods=["GET", "POST"])
 @login_required
 def create_portfolio():
@@ -185,15 +237,13 @@ def create_portfolio():
         
         # if errors in symbol or exchange found, let the user know what they are
         if len(error_symbol_list) != 0 or len(error_exchange_list) != 0:
-            return apology(f"Incorrect symbols: {error_symbol_list} or incorrect exchanges: {error_exchange_list}. All other symbols added to portfolio {portfolio}")
+            return create_errors(f"Incorrect symbols: {error_symbol_list} or incorrect exchanges: {error_exchange_list}. All other symbols added to portfolio {portfolio}")
         
 
         return redirect("/portfolio")
 
-@app.route("/error-page", methods=["GET"])
-@login_required
-def error_page():
-    return render_template("/error-page.html")
+
+# -------------- CURRENT PORTFOLIOS PAGE --------------------------------------------------------------------
 
 @app.route("/portfolio", methods=["GET"])
 @login_required
@@ -226,6 +276,7 @@ def portfolio_page():
     return render_template("portfolio.html", investments=investments, portfolio1=portfolio1, portfolio2=portfolio2, portfolio3=portfolio3, portfolio1_name=portfolio1_name, portfolio2_name=portfolio2_name, portfolio3_name=portfolio3_name)
 
 
+# -------------- BREADTH SUMMARY PAGE --------------------------------------------------------------------
 
 @app.route("/summary", methods=["POST", "GET"])
 @login_required

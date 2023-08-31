@@ -2,7 +2,7 @@ from flask import render_template, session, redirect
 from flask_session import Session
 from functools import wraps
 
-
+fd
 def register_errors(problem):
     return render_template('register.html', problem=problem)
 
