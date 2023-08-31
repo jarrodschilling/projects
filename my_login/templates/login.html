@@ -5,27 +5,11 @@
 {% endblock %}
 
 {% block main %}
-<script>
-    function validateForm() {
-      var inputField1 = document.getElementById("username");
-      var inputField2 = document.getElementById("password");
-      var inputValue1 = inputField1.value.trim();
-      var inputValue2 = inputField2.value.trim();
-  
-      if (inputValue1 === "") {
-        alert("Please provide a Username");
-        return false;
-      }
-  
-      if (inputValue2 === "") {
-        alert("Please provide a Password");
-        return false;
-      }
-    }
-  </script>
+
 <div class="col-md-4 col-md-offset-4">  
     <form action="/login" method="POST">
         <h2>Log In</h2>
+        <h5 style="color: red;">{{ problem }}</h5>
         <div class="form-group">
             <label for="username" class="form-label">Username</label>
             <input

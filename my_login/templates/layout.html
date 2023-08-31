@@ -11,14 +11,19 @@
     </head>
 
     <body>
+        {% if session["user_id"] %}
         <nav class="nav">
-            <a class="nav-link active" aria-current="page" href="{{ url_for('register') }}">Register</a>
-            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+            <a class="nav-link" href="{{ url_for('index') }}">Home</a>
             <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+          </nav>
+          {% else %}
+          <nav class="nav">
+            <a class="nav-link active" href="{{ url_for('register') }}">Register</a>
+            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
             <a class="nav-link" href="{{ url_for('index') }}">Home</a>
           </nav>
-
+          {% endif %}
 
         <main>{% block main %}{% endblock %}</main>
     </body>

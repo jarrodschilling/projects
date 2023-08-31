@@ -8,7 +8,7 @@
 
 <div class="col-md-4 col-md-offset-4">  
     <form action="/register" method="POST">
-        <h2>Register</h2>
+        <h2>Register</h2><div>*Please do not use a password you use on other sites*</div>
         <h5 style="color: red;">{{ problem }}</h5>
         <div class="form-group">
             <label for="name" class="form-label">Username</label>
@@ -19,7 +19,7 @@
                 name="username"
                 placeholder="Enter a Username"
             />
-            <div id="usernameHelp" class="form-text">Use this for detailed instructions</div>
+            <div id="usernameHelp" class="form-text">Username must be between 5 and 25 characters in length.</div>
         </div>
         
         <div class="form-group">
@@ -31,7 +31,7 @@
                 name="password"
                 placeholder="Password"
             />
-            <div id="passwordHelp" class="form-text">Do not use a password used on other sites</div>
+            <div id="passwordHelp" class="form-text">Password must contain at least 1 letter, 1 number and 1 special character.</div>
         </div>
 
         <div class="form-group">
@@ -43,10 +43,10 @@
               name="confirmpassword"
               placeholder="Password"
           />
-          <div id="passwordHelp" class="form-text">Do not use a password used on other sites</div>
+          <div id="passwordHelp" class="form-text">FILL IN IF NEEDED</div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Register</button>
+        <button type="submit" class="btn btn-primary" style="margin-top: 2px;">Register</button>
     </form>
 </div>
 
