@@ -101,8 +101,6 @@ def login_post():
     # Get user info from forms
     username = request.form.get("username")
     password = request.form.get("password")
-    # session["user"] = username
-
 
     # Ensure username was submitted
     if not username:
@@ -128,9 +126,6 @@ def login_post():
     conn.commit()
     conn.close()
 
-
-    print(username, password)
-
     return redirect('/profile')
 
 
@@ -143,9 +138,8 @@ def logout():
     # Forget any user_id
     session.clear()
 
-    # Redirect user to login form
+    # Redirect user to home page
     return redirect("/")
-
 
 # ------ HOME PAGE ---------------------------------------------------------------------------
 
@@ -157,5 +151,19 @@ def index():
 @app.route("/profile")
 @login_required
 def profile():
-    name = session.get("user_id")
-    return render_template("profile.html")
+    user_id = session.get("user_id")
+    
+    # Query database for username
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+    rows = cursor.fetchall()
+
+    # Store username from database table to display on profile page
+    username = rows[0][1]
+
+    conn.commit()
+    conn.close()
+
+    return render_template("profile.html", username=username)
