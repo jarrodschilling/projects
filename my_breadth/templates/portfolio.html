@@ -12,10 +12,8 @@
             {% if not portfolio1_name == "none" %}
             <div class="col-md-4">
                 <div class="text-center">
-                    <form action="/add-portfolio1" method="GET">
-                        <input type="hidden" id="portfolio_id" class="form-control" name="portfolio_id" value="portfolio1">
-                        <button type="submit" class="btn btn-primary mb-3" style="width: 100px;">Add</button>
-                    </form>
+                    <a href="/add-portfolio1" class="btn btn-primary mb-3" style="width: 100px; margin: 5px;">Add</a>
+                    <a href="/delete-portfolio1" class="btn btn-primary mb-3" style="width: 100px; margin: 5px;">Delete</a>
                 </div>
                 <table class="table table-bordered">
                     <thead>

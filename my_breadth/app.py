@@ -284,6 +284,7 @@ def add_portfolio1_page():
 
     name = session.get("user_id")
     portfolio_id = "portfolio1"
+
     #Get portfolio name that matches portfolio_id from database
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
@@ -351,6 +352,69 @@ def add_portfolio1():
     if len(error_symbol_list) != 0 or len(error_exchange_list) != 0:
         return create_errors(f"Incorrect symbols: {error_symbol_list} or incorrect exchanges: {error_exchange_list}. All other symbols added to portfolio {portfolio}")
     
+
+    return redirect("/portfolio")
+
+
+# -------------- DELETE FROM PORTFOLIO 1 PAGE [GET] --------------------------------------------------------------------
+
+@app.route("/delete-portfolio1", methods=["GET"])
+@login_required
+def delete_portfolio1_page():
+
+    name = session.get("user_id")
+    portfolio_id = "portfolio1"
+    
+    #Get portfolio name that matches portfolio_id from database
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT portfolio FROM portfolios WHERE users_id = ? AND portfolio_id = ?", (name, portfolio_id,))
+    rows = cursor.fetchall()
+    
+    portfolio = rows[0][0]
+
+    conn.commit()
+    conn.close()
+
+    # Render current portfolios
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM portfolios WHERE users_id = ?", (name,))
+    investments = cursor.fetchall()
+    
+    cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio1' AND users_id = ?", (name,))
+    portfolio1 = cursor.fetchall()
+    
+    
+    portfolio1_name = portfolio_names(portfolio1)
+
+    conn.commit()
+    conn.close()
+
+    return render_template("delete-portfolio1.html", portfolio_id=portfolio_id, portfolio=portfolio, investments=investments, portfolio1=portfolio1, portfolio1_name=portfolio1_name)
+
+
+# -------------- DELETE FROM PORTFOLIO 1 [POST] --------------------------------------------------------------------
+
+@app.route("/delete-portfolio1", methods=["POST"])
+@login_required
+def delete_portfolio1():
+
+    name = session.get("user_id")
+    portfolio_id = "portfolio1"
+    symbols = request.form.getlist("symbols[]")
+    print(symbols)
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    for i in range(0, len(symbols)):
+        cursor.execute("DELETE FROM portfolios WHERE users_id = ? AND portfolio_id = ? AND symbol = ?", (name, portfolio_id, symbols[i],))
+
+    conn.commit()
+    conn.close()
 
     return redirect("/portfolio")
 
