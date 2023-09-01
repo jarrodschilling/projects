@@ -11,6 +11,12 @@
         <div class="row">
             {% if not portfolio1_name == "none" %}
             <div class="col-md-4">
+                <div class="text-center">
+                    <form action="/add-portfolio1" method="GET">
+                        <input type="hidden" id="portfolio_id" class="form-control" name="portfolio_id" value="portfolio1">
+                        <button type="submit" class="btn btn-primary mb-3" style="width: 100px;">Add</button>
+                    </form>
+                </div>
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -33,6 +39,7 @@
             {% endif %}
             {% if not portfolio2_name == "none" %}
             <div class="col-md-4">
+                <h1>Edit Button</h1>
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -55,6 +62,7 @@
             {% endif %}
             {% if not portfolio3_name == "none" %}
             <div class="col-md-4">
+                <h1>Edit Button</h1>
                 <table class="table table-bordered">
                     <thead>
                         <tr>

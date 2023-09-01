@@ -4,9 +4,9 @@ from tradingview_ta import TA_Handler, TradingView, Exchange, Interval, get_mult
 from yahooquery import Ticker
 
 
-name = "10"
+name = "12"
 portfolio = "port"
-portfolio_id = "portfolio1"
+portfolio_id = "portfolio2"
 screener = "america"
 
 symbol1 = "XAR"
@@ -27,27 +27,10 @@ conn = sqlite3.connect('database.db')
 cursor = conn.cursor()
 
 # Check to see if portfolio_id already exists for user
-cursor.execute("SELECT portfolio_id FROM portfolios WHERE users_id = ?", (name,))
+cursor.execute("SELECT portfolio FROM portfolios WHERE users_id = ? AND portfolio_id = ?", (name, portfolio_id,))
 rows = cursor.fetchall()
 
-port1 = ''
-port2 = ''
-port3 = ''
-
-for row in range(0, len(rows)):
-    if rows[row][0] == 'portfolio1':
-        port1 = True
-    elif rows[row][0] == "portfolio2":
-        port2 = True
-    elif rows[row][0] == "portfolio3":
-        port3 = True
-
-if port1 == True:
-    print("Portfolio 1 already created")
-elif port2 == True:
-    print("Portfolio 2 already created")
-elif port3 == True:
-    print("Portfolio 3 already created")
+print(rows[0][0])
 
 conn.commit()
 conn.close()

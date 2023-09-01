@@ -200,7 +200,31 @@ def detail():
 @app.route("/create-portfolio", methods=["GET"])
 @login_required
 def create_portfolio_page():
-    return render_template("create-portfolio.html")
+    
+    name = session.get("user_id")
+    # Check to see if portfolio_id already exists for user
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT portfolio_id FROM portfolios WHERE users_id = ?", (name,))
+    rows = cursor.fetchall()
+
+    port1 = ""
+    port2 = ""
+    port3 = ""
+
+    for row in range(0, len(rows)):
+        if rows[row][0] == "portfolio1":
+            port1 = True
+        if rows[row][0] == "portfolio2":
+            port2 = True
+        if rows[row][0] == "portfolio3":
+            port3 = True
+
+    conn.commit()
+    conn.close()
+
+    return render_template("create-portfolio.html", port1=port1, port2=port2, port3=port3)
     
     
 # -------------- CREATE PORTFOLIO [POST] --------------------------------------------------------------------
@@ -224,24 +248,7 @@ def create_portfolio():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
-    # Check to see if portfolio_id already exists for user
-    cursor.execute("SELECT * FROM portfolios WHERE users_id = ?", (name))
-    rows = cursor.fetchall
-    for row in rows:
-        if rows[row][5] == "portfolio1":
-            port1 = True
-        elif rows[row][5] == "portfolio2":
-            port2 = True
-        elif rows[row][5] == "portfolio3":
-            port3 = True
-
-    conn.commit()
-    conn.close()
-
     # Check that symbol and exchange are correct
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-
     error_symbol_list = []
     error_exchange_list = []
     for i in range(0, len(stock_data_upper)):
@@ -263,6 +270,90 @@ def create_portfolio():
     
 
     return redirect("/portfolio")
+
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+# -------------- ADD PORTFOLIO 1 PAGE [GET] --------------------------------------------------------------------
+
+@app.route("/add-portfolio1", methods=["GET"])
+@login_required
+def add_portfolio1_page():
+
+    name = session.get("user_id")
+    portfolio_id = "portfolio1"
+    #Get portfolio name that matches portfolio_id from database
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT portfolio FROM portfolios WHERE users_id = ? AND portfolio_id = ?", (name, portfolio_id,))
+    rows = cursor.fetchall()
+    print(rows)
+    portfolio = rows[0][0]
+
+    conn.commit()
+    conn.close()
+
+    return render_template("add-portfolio1.html", portfolio_id=portfolio_id, portfolio=portfolio)
+
+
+# -------------- ADD TO PORTFOLIO 1 [POST] --------------------------------------------------------------------
+
+@app.route("/add-portfolio1", methods=["POST"])
+@login_required
+def add_portfolio1():
+
+    # Pull data from user form
+    name = session.get("user_id")
+    portfolio_id = request.form.get("portfolio_id")
+    symbols = request.form.getlist("symbols[]")
+    exchanges = request.form.getlist("exchanges[]")
+    screener = "america"
+
+    #Get portfolio name that matches portfolio_id from database
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT portfolio FROM portfolios WHERE users_id = ? AND portfolio_id = ?", (name, portfolio_id,))
+    rows = cursor.fetchall()
+    portfolio = rows[0][0]
+
+    conn.commit()
+    conn.close()
+
+    # Combine symbol and exchange into an array
+    stock_data = list(zip(symbols, exchanges))
+    stock_data_upper = [(symbol.upper(), exchange.upper()) for symbol, exchange in stock_data]
+    
+    # INSERT Stocks into database
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    # Check that symbol and exchange are correct
+    error_symbol_list = []
+    error_exchange_list = []
+    for i in range(0, len(stock_data_upper)):
+        #check to make sure both fields are completed
+        if stock_data_upper[i][0] != "" or stock_data_upper[i][1] != "":
+            # check to make sure symbol and exchange are correct for TV API
+            if (symbol_check(stock_data_upper[i][0], stock_data_upper[i][1])) == True:
+                cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (stock_data_upper[i][0], screener, stock_data_upper[i][1], portfolio, portfolio_id, name))
+            else:
+                error_symbol_list.append(stock_data_upper[i][0])
+                error_exchange_list.append(stock_data_upper[i][1])
+    
+    conn.commit()
+    conn.close()
+    
+    # if errors in symbol or exchange found, let the user know what they are
+    if len(error_symbol_list) != 0 or len(error_exchange_list) != 0:
+        return create_errors(f"Incorrect symbols: {error_symbol_list} or incorrect exchanges: {error_exchange_list}. All other symbols added to portfolio {portfolio}")
+    
+
+    return redirect("/portfolio")
+
 
 
 # -------------- CURRENT PORTFOLIOS PAGE --------------------------------------------------------------------
