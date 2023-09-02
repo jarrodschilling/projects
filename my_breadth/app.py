@@ -241,6 +241,7 @@ def create_portfolio():
 
     # Make symbols uppercase
     symbols_upper = [symbol.upper() for symbol in symbols]
+    print(symbols_upper)
 
     # Find exchanges for symbols from tradingview.db
     conn = sqlite3.connect('tradingview.db')
@@ -248,15 +249,14 @@ def create_portfolio():
 
     exchanges = []
     for i in range(0, len(symbols_upper)):
-
-        cursor.execute("SELECT exchange FROM tv WHERE symbol = ?", (symbols_upper[i],))
-        rows = cursor.fetchall()
-        exchanges.append(rows[0][0])
+        if symbols_upper[i] != "":
+            cursor.execute("SELECT exchange FROM tv WHERE symbol = ?", (symbols_upper[i],))
+            rows = cursor.fetchall()
+            print(rows)
+            exchanges.append(rows[0][0])
 
     conn.commit()
     conn.close()
-    #exchanges = request.form.getlist("exchanges[]")
-
 
     # Combine symbol and exchange into an array
     stock_data_upper = list(zip(symbols, exchanges))
