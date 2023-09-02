@@ -237,12 +237,30 @@ def create_portfolio():
     portfolio = request.form.get("portfolio")
     portfolio_id = request.form.get("portfolio_id")
     symbols = request.form.getlist("symbols[]")
-    exchanges = request.form.getlist("exchanges[]")
     screener = "america"
 
+    # Make symbols uppercase
+    symbols_upper = [symbol.upper() for symbol in symbols]
+
+    # Find exchanges for symbols from tradingview.db
+    conn = sqlite3.connect('tradingview.db')
+    cursor = conn.cursor()
+
+    exchanges = []
+    for i in range(0, len(symbols_upper)):
+
+        cursor.execute("SELECT exchange FROM tv WHERE symbol = ?", (symbols_upper[i],))
+        rows = cursor.fetchall()
+        exchanges.append(rows[0][0])
+
+    conn.commit()
+    conn.close()
+    #exchanges = request.form.getlist("exchanges[]")
+
+
     # Combine symbol and exchange into an array
-    stock_data = list(zip(symbols, exchanges))
-    stock_data_upper = [(symbol.upper(), exchange.upper()) for symbol, exchange in stock_data]
+    stock_data_upper = list(zip(symbols, exchanges))
+    #stock_data_upper = [(symbol.upper(), exchange.upper()) for symbol, exchange in stock_data]
     
     # INSERT Stocks into database
     conn = sqlite3.connect('database.db')

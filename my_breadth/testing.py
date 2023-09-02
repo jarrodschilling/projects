@@ -9,10 +9,10 @@ portfolio = "port"
 portfolio_id = "portfolio2"
 screener = "america"
 
-symbol1 = "XAR"
+symbol1 = "JPM"
 exchange1 = "NYSE"
 
-symbol2 = "jpm"
+symbol2 = "XLI"
 exchange2 = ""
 
 symbol3 = "XLF"
@@ -22,15 +22,32 @@ symbols = [symbol1, symbol2, symbol3]
 exchanges = [exchange1, exchange2, exchange3]
 
 
-# INSERT Stocks into database
-conn = sqlite3.connect('database.db')
+# Find exchange for symbol from tradingview.db
+conn = sqlite3.connect('tradingview.db')
 cursor = conn.cursor()
 
-# Check to see if portfolio_id already exists for user
-cursor.execute("SELECT portfolio FROM portfolios WHERE users_id = ? AND portfolio_id = ?", (name, portfolio_id,))
-rows = cursor.fetchall()
+exchanges_test = []
+for i in range(0, len(symbols)):
 
-print(rows[0][0])
+    cursor.execute("SELECT exchange FROM tv WHERE symbol = ?", (symbols[i],))
+    rows = cursor.fetchall()
+    print(rows[0][0])
+    exchanges_test.append(rows[0][0])
+
+print(exchanges_test)
 
 conn.commit()
 conn.close()
+
+# Find exchange for symbol from tradingview.db
+#conn = sqlite3.connect('database.db')
+#cursor = conn.cursor()
+
+# Check to see if portfolio_id already exists for user
+#cursor.execute("SELECT portfolio FROM portfolios WHERE users_id = ? AND portfolio_id = ?", (name, portfolio_id,))
+#rows = cursor.fetchall()
+
+#print(rows[0][0])
+
+#conn.commit()
+#conn.close()
