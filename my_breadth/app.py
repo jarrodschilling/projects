@@ -363,6 +363,7 @@ def add_portfolio1():
     # Combine symbol and exchange into an array
     stock_data_upper = list(zip(symbols_upper, exchanges))
     #stock_data_upper = [(symbol.upper(), exchange.upper()) for symbol, exchange in stock_data]
+    print(stock_data_upper)
     
     # INSERT Stocks into database
     conn = sqlite3.connect('database.db')
@@ -453,6 +454,13 @@ def delete_portfolio1():
     conn.close()
 
     return redirect("/portfolio")
+
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+
 
 
 
