@@ -236,9 +236,16 @@ def create_portfolio():
     name = session.get("user_id")
     portfolio = request.form.get("portfolio")
     portfolio_id = request.form.get("portfolio_id")
-    symbols = request.form.getlist("symbols[]")
+    symbols_list = request.form.getlist("symbols[]")
     screener = "america"
 
+
+    # Remove empty symbols from array
+    symbols = []
+    for i in range(0, len(symbols_list)):
+        if symbols_list[i] != "":
+            symbols.append(symbols_list[i])
+    
     # Make symbols uppercase
     symbols_upper = [symbol.upper() for symbol in symbols]
     print(symbols_upper)
@@ -327,8 +334,14 @@ def add_portfolio1():
     # Pull data from user form
     name = session.get("user_id")
     portfolio_id = request.form.get("portfolio_id")
-    symbols = request.form.getlist("symbols[]")
+    symbols_list = request.form.getlist("symbols[]")
     screener = "america"
+
+    # Remove empty symbols from array
+    symbols = []
+    for i in range(0, len(symbols_list)):
+        if symbols_list[i] != "":
+            symbols.append(symbols_list[i])
 
     # Make symbols uppercase
     symbols_upper = [symbol.upper() for symbol in symbols]

@@ -1,5 +1,5 @@
 import sqlite3
-from functions import moving_avgs, login_required, symbol_check
+from functions import moving_avgs, login_required, symbol_check, create_errors
 from tradingview_ta import TA_Handler, TradingView, Exchange, Interval, get_multiple_analysis
 from yahooquery import Ticker
 
@@ -12,42 +12,43 @@ screener = "america"
 symbol1 = "JPM"
 exchange1 = "NYSE"
 
-symbol2 = "XLI"
+symbol2 = "asffs"
 exchange2 = ""
 
 symbol3 = "XLF"
 exchange3 = "AMEX"
 
-symbols = [symbol1, symbol2, symbol3]
-exchanges = [exchange1, exchange2, exchange3]
+symbols_list = [symbol1, symbol2, symbol3]
+#exchanges = [exchange1, exchange2, exchange3]
 
 
-# Find exchange for symbol from tradingview.db
+
+symbols = []
+for i in range(0, len(symbols_list)):
+    if symbols_list[i] != "":
+        symbols.append(symbols_list[i])
+
+# Make symbols uppercase
+symbols_upper = [symbol.upper() for symbol in symbols]
+print(symbols_upper)
+
+# Find exchanges for symbols from tradingview.db
 conn = sqlite3.connect('tradingview.db')
 cursor = conn.cursor()
 
-exchanges_test = []
-for i in range(0, len(symbols)):
+exchanges = []
+for i in range(0, len(symbols_upper)):
 
-    cursor.execute("SELECT exchange FROM tv WHERE symbol = ?", (symbols[i],))
+    cursor.execute("SELECT exchange FROM tv WHERE symbol = ?", (symbols_upper[i],))
     rows = cursor.fetchall()
-    print(rows[0][0])
-    exchanges_test.append(rows[0][0])
+    if rows[0][0] != None:
+        exchanges.append(rows[0][0])
+    else:
+        print(f"{symbols_upper[i]} does not exist, all other symbols entered successfully")
+        x = symbols_upper[i]
+        symbols_upper.remove(x)
 
-print(exchanges_test)
-
+print(symbols_upper)
+print(exchanges)
 conn.commit()
 conn.close()
-
-# Find exchange for symbol from tradingview.db
-#conn = sqlite3.connect('database.db')
-#cursor = conn.cursor()
-
-# Check to see if portfolio_id already exists for user
-#cursor.execute("SELECT portfolio FROM portfolios WHERE users_id = ? AND portfolio_id = ?", (name, portfolio_id,))
-#rows = cursor.fetchall()
-
-#print(rows[0][0])
-
-#conn.commit()
-#conn.close()
