@@ -352,12 +352,20 @@ def add_portfolio1():
     cursor = conn.cursor()
 
     exchanges = []
+    symbols_upper_list = []
     for i in range(0, len(symbols_upper)):
-        if symbols_upper[i] != "":
-            cursor.execute("SELECT exchange FROM tv WHERE symbol = ?", (symbols_upper[i],))
-            rows = cursor.fetchall()
-            print(rows)
-            exchanges.append(rows[0][0])
+
+        cursor.execute("SELECT exchange FROM tv WHERE symbol = ?", (symbols_upper[i],))
+        rows = cursor.fetchall()
+        
+        for row in range(0, len(rows)):
+            if rows[0][0] != "":
+                exchanges.append(rows[0][0])
+                symbols_upper_list.append(symbols_upper[i])
+
+            # SOMETHING WRONG WITH THIS ERROR - MESSAGE NOT DISPLAYING
+            else:
+                create_errors(f"{symbols_upper[i]} does not exist, all other symbols entered successfully")
 
     conn.commit()
     conn.close()
@@ -374,7 +382,7 @@ def add_portfolio1():
     conn.close()
 
     # Combine symbol and exchange into an array
-    stock_data_upper = list(zip(symbols_upper, exchanges))
+    stock_data_upper = list(zip(symbols_upper_list, exchanges))
     #stock_data_upper = [(symbol.upper(), exchange.upper()) for symbol, exchange in stock_data]
     print(stock_data_upper)
     

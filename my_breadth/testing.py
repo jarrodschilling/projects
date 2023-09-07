@@ -1,7 +1,8 @@
 import sqlite3
 from functions import moving_avgs, login_required, symbol_check, create_errors
 from tradingview_ta import TA_Handler, TradingView, Exchange, Interval, get_multiple_analysis
-from yahooquery import Ticker
+
+
 
 
 name = "12"
@@ -12,7 +13,7 @@ screener = "america"
 symbol1 = "JPM"
 exchange1 = "NYSE"
 
-symbol2 = "asffs"
+symbol2 = "asdf"
 exchange2 = ""
 
 symbol3 = "XLF"
@@ -36,19 +37,25 @@ print(symbols_upper)
 conn = sqlite3.connect('tradingview.db')
 cursor = conn.cursor()
 
+
 exchanges = []
+symbols_upper_list = []
 for i in range(0, len(symbols_upper)):
 
     cursor.execute("SELECT exchange FROM tv WHERE symbol = ?", (symbols_upper[i],))
     rows = cursor.fetchall()
-    if rows[0][0] != None:
-        exchanges.append(rows[0][0])
-    else:
-        print(f"{symbols_upper[i]} does not exist, all other symbols entered successfully")
-        x = symbols_upper[i]
-        symbols_upper.remove(x)
+    
+    for row in range(0, len(rows)):
+        if rows[0][0] != "":
+            print(rows[0][0])
+            exchanges.append(rows[0][0])
+            symbols_upper_list.append(symbols_upper[i])
 
-print(symbols_upper)
+        elif rows[0][0] == None:
+            print(rows[0][0])
+            print(f"{symbols_upper[i]} does not exist, all other symbols entered successfully")
+
+print(symbols_upper_list)
 print(exchanges)
 conn.commit()
 conn.close()
