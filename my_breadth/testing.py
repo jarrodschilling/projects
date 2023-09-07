@@ -2,7 +2,7 @@ import sqlite3
 from functions import moving_avgs, login_required, symbol_check, create_errors
 from tradingview_ta import TA_Handler, TradingView, Exchange, Interval, get_multiple_analysis
 
-
+ALPHAVANTAGE_API_KEY = "L2PXBUL4LIYTG2UZ"
 
 
 name = "12"

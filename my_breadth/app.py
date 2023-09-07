@@ -5,6 +5,7 @@ from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 from functions import moving_avgs, login_required, portfolio_names, ma_compute, symbol_check, register_errors, login_errors, is_valid_password, create_errors
 # flask --app example_app.py --debug run
+ALPHAVANTAGE_API_KEY = "L2PXBUL4LIYTG2UZ"
 
 app = Flask(__name__)
 
