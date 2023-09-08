@@ -2,22 +2,44 @@ from tradingview_ta import TA_Handler, Exchange, Interval
 from functools import wraps
 from flask import session, redirect, render_template
 import requests
+import pandas as pd
+import numpy as np
+import yfinance as yf
+from datetime import datetime
+import pytz
 
-ALPHAVANTAGE_API_KEY = "L2PXBUL4LIYTG2UZ"
+def ema(symbol, ema_period):
+    symbol = symbol
+    start_date = "2022-01-01"
+    end_date = datetime.today().strftime('%Y-%m-%d')
 
-def alpha(symbol, period, ma):
-    api_key = ALPHAVANTAGE_API_KEY
-    endpoint = f"https://www.alphavantage.co/query?function={ma}&symbol={symbol}&interval=daily&time_period={period}&series_type=close&apikey={api_key}"
+    # Fetch historical stock data
+    data = yf.download(symbol, start=start_date, end=end_date)
 
+    # Calculate the 20-day EMA
+    ema_period = ema_period
+    data[f'EMA_{ema_period}'] = data['Close'].ewm(span=ema_period, adjust=False).mean()
 
-    response = requests.get(endpoint)
-    json_data = response.json()
-    ma_data = json_data[f"Technical Analysis: {ma}"]
-    
-    # Get the most recent 200-day SMA value
-    latest_date = max(ma_data.keys())
-    latest_sma_value = float(ma_data[latest_date][f"{ma}"])
-    return (latest_sma_value)
+    # Get the most recent day's closing 20 EMA
+    most_recent_20_ema = data[f'EMA_{ema_period}'].iloc[-1]
+
+    return most_recent_20_ema
+
+def sma(symbol, sma_period):
+    symbol = symbol
+    start_date = "2022-01-01"
+    end_date = datetime.today().strftime('%Y-%m-%d')
+
+    # Fetch historical stock data
+    data = yf.download(symbol, start=start_date, end=end_date)
+
+    # Calculate the 50-day SMA
+    sma_period = sma_period
+    data[f'SMA_{sma_period}'] = data['Close'].rolling(window=sma_period).mean()
+
+    most_recent_50_sma = data[f'SMA_{sma_period}'].iloc[-1]
+
+    return most_recent_50_sma
 
 
 

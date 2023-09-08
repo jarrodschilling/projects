@@ -38,5 +38,17 @@ else:
 
 
 
+def alpha(symbol, period, ma):
+    api_key = ALPHAVANTAGE_API_KEY
+    endpoint = f"https://www.alphavantage.co/query?function={ma}&symbol={symbol}&interval=daily&time_period={period}&series_type=close&apikey={api_key}"
 
+
+    response = requests.get(endpoint)
+    json_data = response.json()
+    ma_data = json_data[f"Technical Analysis: {ma}"]
+    
+    # Get the most recent 200-day SMA value
+    latest_date = max(ma_data.keys())
+    latest_sma_value = float(ma_data[latest_date][f"{ma}"])
+    return (latest_sma_value)
 
