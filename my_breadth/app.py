@@ -3,9 +3,9 @@ from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
-from functions import moving_avgs, login_required, portfolio_names, ma_compute, symbol_check, register_errors, login_errors, is_valid_password, create_errors
+from functions import moving_avgs, login_required, portfolio_names, ma_compute, symbol_check, register_errors, login_errors, is_valid_password, create_errors, ema, sma, current_price, ma_compute_yf
 # flask --app example_app.py --debug run
-ALPHAVANTAGE_API_KEY = "L2PXBUL4LIYTG2UZ"
+
 
 app = Flask(__name__)
 
@@ -179,9 +179,9 @@ def detail():
         portfolio2_name = portfolio_names(portfolio2)
         portfolio3_name = portfolio_names(portfolio3)
 
-        portfolio1_ema20 = ma_compute(stocks, "portfolio1", "ema20")
-        portfolio1_sma50 = ma_compute(stocks, "portfolio1", "sma50")
-        portfolio1_sma200 = ma_compute(stocks, "portfolio1", "sma200")
+        portfolio1_ema20 = ma_compute_yf(stocks, "portfolio1", "ema20")
+        portfolio1_sma50 = ma_compute_yf(stocks, "portfolio1", "sma50")
+        portfolio1_sma200 = ma_compute_yf(stocks, "portfolio1", "sma200")
         portfolio2_ema20 = ma_compute(stocks, "portfolio2", "ema20")
         portfolio2_sma50 = ma_compute(stocks, "portfolio2", "sma50")
         portfolio2_sma200 = ma_compute(stocks, "portfolio2", "sma200")

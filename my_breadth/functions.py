@@ -58,6 +58,28 @@ def sma(symbol, sma_period):
     return most_recent_50_sma
 
 
+def ma_compute_yf(stocks, portfolio_id, ma_avg):
+    portfolio_ma = []
+
+    for stock in stocks:
+        symbol = stock[1]
+        portfolio = stock[5]
+        current = current_price(symbol)
+        ema20 = ema(symbol, 20)
+        sma50 = sma(symbol, 50)
+        sma200 = sma(symbol, 200)
+        
+
+        if portfolio == portfolio_id:
+            if (ma_avg == "ema20") and current > ema20 and ema20 > sma50 and sma50 > sma200:
+                portfolio_ma.append(symbol)
+            elif (ma_avg == "sma50") and current > sma50 and sma50 > sma200:
+                portfolio_ma.append(symbol)
+            elif (ma_avg == "sma200") and current > sma200:
+                portfolio_ma.append(symbol)
+
+    return portfolio_ma
+
 
 def moving_avgs(symbol, screener, exchange):
     stock = TA_Handler(
