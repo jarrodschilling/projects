@@ -5,8 +5,23 @@ import requests
 import pandas as pd
 import numpy as np
 import yfinance as yf
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
+
+def price(symbol):
+    symbol = symbol
+    today_date = datetime.today().strftime('%Y-%m-%d')
+
+    # Calculate yesterday's date by subtracting one day from today
+    yesterday_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+
+    # Fetch historical stock data for yesterday
+    data = yf.download(symbol, start=yesterday_date, end=yesterday_date)
+
+    # Get yesterday's closing price
+    yesterday_closing_price = data['Close'].iloc[0]
+
+    return yesterday_closing_price
 
 def ema(symbol, ema_period):
     symbol = symbol
@@ -18,6 +33,7 @@ def ema(symbol, ema_period):
 
     # Calculate the 20-day EMA
     ema_period = ema_period
+    
     data[f'EMA_{ema_period}'] = data['Close'].ewm(span=ema_period, adjust=False).mean()
 
     # Get the most recent day's closing 20 EMA
