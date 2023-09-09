@@ -8,7 +8,7 @@ import yfinance as yf
 from datetime import datetime, timedelta
 import pytz
 
-def price(symbol):
+def current_price(symbol):
     symbol = symbol
     today_date = datetime.today().strftime('%Y-%m-%d')
 
@@ -16,7 +16,7 @@ def price(symbol):
     yesterday_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
 
     # Fetch historical stock data for yesterday
-    data = yf.download(symbol, start=yesterday_date, end=yesterday_date)
+    data = yf.download(symbol, start=yesterday_date, end=today_date)
 
     # Get yesterday's closing price
     yesterday_closing_price = data['Close'].iloc[0]

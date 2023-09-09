@@ -2,12 +2,12 @@ import pandas as pd
 import numpy as np
 import yfinance as yf
 from datetime import datetime, timedelta
-from functions import ema, sma, price
+from functions import ema, sma, current_price
 import pytz
 
 
 # Define the stock symbol (NVDA) and today's date
-symbol = "NVDA"
+symbol = "ELF"
 today_date = datetime.today().strftime('%Y-%m-%d')
 
 # Calculate yesterday's date by subtracting one day from today
@@ -22,12 +22,12 @@ yesterday_closing_price = data['Close'].iloc[0]
 # Print yesterday's closing price
 print(f"Yesterday's closing price for {symbol} was: {yesterday_closing_price:.2f}")
 
-ticker = "ELF"
+ticker = "ARRY"
 period = 200
 
-#p = price(ticker)
+p = current_price(ticker)
 
-check20 = ema(ticker, 20)
+check20 = ema(ticker, 21)
 print(check20)
 
 check50 = sma(ticker, 50)
@@ -36,7 +36,7 @@ print(check50)
 check200 = sma(ticker, 200)
 print(check200)
 
-if check20 > check50 and check50 > check200:
+if p > check20 and check20 > check50 and check50 > check200:
     print("TRENDING")
 else:
     print("not so fast")
