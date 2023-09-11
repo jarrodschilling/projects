@@ -10,16 +10,14 @@ import pytz
 
 def current_price(symbol):
     symbol = symbol
+    start_date = "2022-01-01"
     today_date = datetime.today().strftime('%Y-%m-%d')
 
-    # Calculate yesterday's date by subtracting one day from today
-    yesterday_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
-
     # Fetch historical stock data for yesterday
-    data = yf.download(symbol, start=yesterday_date, end=today_date)
+    data = yf.download(symbol, start=start_date, end=today_date)
 
     # Get yesterday's closing price
-    yesterday_closing_price = data['Close'].iloc[0]
+    yesterday_closing_price = data['Close'].iloc[-1]
 
     return yesterday_closing_price
 

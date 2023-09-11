@@ -545,9 +545,9 @@ def summary():
     portfolio2_name = portfolio_names(portfolio2)
     portfolio3_name = portfolio_names(portfolio3)
 
-    portfolio1_ema20 = ma_compute(stocks, "portfolio1", "ema20")
-    portfolio1_sma50 = ma_compute(stocks, "portfolio1", "sma50")
-    portfolio1_sma200 = ma_compute(stocks, "portfolio1", "sma200")
+    portfolio1_ema20 = ma_compute_yf(stocks, "portfolio1", "ema20")
+    portfolio1_sma50 = ma_compute_yf(stocks, "portfolio1", "sma50")
+    portfolio1_sma200 = ma_compute_yf(stocks, "portfolio1", "sma200")
     portfolio2_ema20 = ma_compute(stocks, "portfolio2", "ema20")
     portfolio2_sma50 = ma_compute(stocks, "portfolio2", "sma50")
     portfolio2_sma200 = ma_compute(stocks, "portfolio2", "sma200")

@@ -1,5 +1,6 @@
 from functions import ema, sma, current_price
 import sqlite3
+import concurrent.futures
 
 def ma_compute_yf(stocks, portfolio_id, ma_avg):
     portfolio_ma = []
@@ -29,16 +30,26 @@ cursor = conn.cursor()
 
 cursor.execute("SELECT * FROM finance WHERE users_id = '1'")
 stocks = cursor.fetchall()
-print(stocks)
+#print(stocks)
+
+port2_stocks = []
+for stock in stocks:
+    stock = stocks[1]
+    row = [stock, "portfolio1", "ema20"]
+    port2_stocks.append(row)
+
+print(port2_stocks)
+
+#portfolio2_ema20 = ma_compute_yf(stocks, "portfolio2", "ema20")
 
 
-portfolio2_ema20 = ma_compute_yf(stocks, "portfolio2", "ema20")
-portfolio2_sma50 = ma_compute_yf(stocks, "portfolio2", "sma50")
-portfolio2_sma200 = ma_compute_yf(stocks, "portfolio2", "sma200")
 
-print(portfolio2_ema20)
-print(portfolio2_sma50)
-print(portfolio2_sma200)
+#portfolio2_sma50 = ma_compute_yf(stocks, "portfolio2", "sma50")
+#portfolio2_sma200 = ma_compute_yf(stocks, "portfolio2", "sma200")
+
+#print(portfolio2_ema20)
+#print(portfolio2_sma50)
+#print(portfolio2_sma200)
 
 conn.commit()
 conn.close()
