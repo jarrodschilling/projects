@@ -2,6 +2,7 @@ from functions import ema, sma, current_price
 import sqlite3
 import concurrent.futures
 
+
 def ma_compute_yf(stocks, portfolio_id, ma_avg):
     portfolio_ma = []
 

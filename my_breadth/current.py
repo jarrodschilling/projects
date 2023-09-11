@@ -5,17 +5,12 @@ import yfinance as yf
 from datetime import datetime, timedelta
 import pytz
 import time
+from yf_test import api_call
 
 start = time.time()
 start_cp = time.time()
-def current_price(symbol):
-    symbol = symbol
-    start_date = "2022-01-01"
-    today_date = datetime.today().strftime('%Y-%m-%d')
-
-    # Fetch historical stock data for yesterday
-    data = yf.download(symbol, start=start_date, end=today_date)
-
+def current_price(data):
+    data = data
     # Get yesterday's closing price
     yesterday_closing_price = data['Close'].iloc[-1]
 
@@ -23,15 +18,8 @@ def current_price(symbol):
 end_cp = time.time()
 
 start_ema = time.time()
-def ema(symbol, ema_period):
-    symbol = symbol
-    start_date = "2023-01-01"
-    end_date = datetime.today().strftime('%Y-%m-%d')
-
-    # Fetch historical stock data
-    data = yf.download(symbol, start=start_date, end=end_date)
-
-    # Calculate the 20-day EMA
+def ema(data, ema_period):
+    data = data
     ema_period = ema_period
     
     data[f'EMA_{ema_period}'] = data['Close'].ewm(span=ema_period, adjust=False).mean()
@@ -44,15 +32,8 @@ end_ema = time.time()
 
 
 start_sma = time.time()
-def sma(symbol, sma_period):
-    symbol = symbol
-    start_date = "2022-01-01"
-    end_date = datetime.today().strftime('%Y-%m-%d')
-
-    # Fetch historical stock data
-    data = yf.download(symbol, start=start_date, end=end_date)
-
-    # Calculate the 50-day SMA
+def sma(data, sma_period):
+    data = data
     sma_period = sma_period
     data[f'SMA_{sma_period}'] = data['Close'].rolling(window=sma_period).mean()
 
@@ -68,10 +49,11 @@ def ma_compute_yf(stocks, portfolio_id, ma_avg):
     for stock in stocks:
         symbol = stock[1]
         portfolio = stock[5]
-        current = current_price(symbol)
-        ema20 = ema(symbol, 20)
-        sma50 = sma(symbol, 50)
-        sma200 = sma(symbol, 200)
+        data = api_call(symbol)
+        current = current_price(data)
+        ema20 = ema(data, 20)
+        sma50 = sma(data, 50)
+        sma200 = sma(data, 200)
         
 
         if portfolio == portfolio_id:
