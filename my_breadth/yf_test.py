@@ -7,21 +7,23 @@ import pytz
 import time
 
 
-start_sma200 = time.time()
-def api_call(symbol):
-    symbol = symbol
-    start_date = "2022-01-01"
-    end_date = datetime.today().strftime('%Y-%m-%d')
+symbol = "NVDA"
 
-    # Fetch historical stock data
-    data = yf.download(symbol, start=start_date, end=end_date)
+start_date = "2023-07-10"
+end_date = datetime.today().strftime('%Y-%m-%d')
 
-    return data
+# Fetch historical stock data
+data = yf.download(symbol, start=start_date, end=end_date)
+# Get yesterday's closing price
+yesterday_closing_price = data['Close'].iloc[-1]
+print(data)
+
+ticker = yf.Ticker("AAPL")
+
+print(ticker)
 
 
+print(end_date)
+print(yesterday_closing_price)
 
 
-
-end_sma200 = time.time()
-total_sma200 = (end_sma200 - start_sma200) * 10**3
-print(total_sma200)
