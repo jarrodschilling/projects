@@ -23,7 +23,7 @@
                     </thead>
                     <tbody>
                             {% for stock in investments %}
-                            {% if stock[5] == "portfolio1" %}
+                            {% if stock[3] == "portfolio1" %}
                             <tr>
                                 <td>
                                     {{ stock[1] }}
@@ -49,7 +49,7 @@
                     </thead>
                     <tbody>
                             {% for stock in investments %}
-                            {% if stock[5] == "portfolio2" %}
+                            {% if stock[3] == "portfolio2" %}
                             <tr>
                                 <td>
                                     {{ stock[1] }}
@@ -75,7 +75,7 @@
                     </thead>
                     <tbody>
                             {% for stock in investments %}
-                            {% if stock[5] == "portfolio3" %}
+                            {% if stock[3] == "portfolio3" %}
                             <tr>
                                 <td>
                                     {{ stock[1] }}

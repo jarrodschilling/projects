@@ -3,7 +3,7 @@ from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
-from functions import moving_avgs, login_required, portfolio_names, ma_compute, symbol_check, register_errors, login_errors, is_valid_password, create_errors, ema, sma, current_price, ma_compute_yf
+from functions import login_required, portfolio_names, symbol_check, register_errors, login_errors, is_valid_password, create_errors, ma_compute_yf
 # flask --app example_app.py --debug run
 
 
@@ -238,7 +238,6 @@ def create_portfolio():
     portfolio = request.form.get("portfolio")
     portfolio_id = request.form.get("portfolio_id")
     symbols_list = request.form.getlist("symbols[]")
-    screener = "america"
 
 
     # Remove empty symbols from array
@@ -249,26 +248,7 @@ def create_portfolio():
     
     # Make symbols uppercase
     symbols_upper = [symbol.upper() for symbol in symbols]
-    print(symbols_upper)
 
-    # Find exchanges for symbols from tradingview.db
-    conn = sqlite3.connect('tradingview.db')
-    cursor = conn.cursor()
-
-    exchanges = []
-    for i in range(0, len(symbols_upper)):
-        if symbols_upper[i] != "":
-            cursor.execute("SELECT exchange FROM tv WHERE symbol = ?", (symbols_upper[i],))
-            rows = cursor.fetchall()
-            print(rows)
-            exchanges.append(rows[0][0])
-
-    conn.commit()
-    conn.close()
-
-    # Combine symbol and exchange into an array
-    stock_data_upper = list(zip(symbols_upper, exchanges))
-    #stock_data_upper = [(symbol.upper(), exchange.upper()) for symbol, exchange in stock_data]
     
     # INSERT Stocks into database
     conn = sqlite3.connect('database.db')
@@ -277,22 +257,21 @@ def create_portfolio():
     # Check that symbol and exchange are correct
     error_symbol_list = []
     error_exchange_list = []
-    for i in range(0, len(stock_data_upper)):
+    for i in range(0, len(symbols_upper)):
         #check to make sure both fields are completed
-        if stock_data_upper[i][0] != "" or stock_data_upper[i][1] != "":
+        if symbols_upper[i] != "":
             # check to make sure symbol and exchange are correct for TV API
-            if (symbol_check(stock_data_upper[i][0], stock_data_upper[i][1])) == True:
-                cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (stock_data_upper[i][0], screener, stock_data_upper[i][1], portfolio, portfolio_id, name))
+            if (symbol_check(symbols_upper[i]) == True):
+                cursor.execute("INSERT INTO portfolios (symbol, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?)", (symbols_upper[i], portfolio, portfolio_id, name))
             else:
-                error_symbol_list.append(stock_data_upper[i][0])
-                error_exchange_list.append(stock_data_upper[i][1])
+                error_symbol_list.append(symbols_upper[i])
     
     conn.commit()
     conn.close()
     
     # if errors in symbol or exchange found, let the user know what they are
-    if len(error_symbol_list) != 0 or len(error_exchange_list) != 0:
-        return create_errors(f"Incorrect symbols: {error_symbol_list} or incorrect exchanges: {error_exchange_list}. All other symbols added to portfolio {portfolio}")
+    if len(error_symbol_list) != 0:
+        return create_errors(f"Incorrect symbols: {error_symbol_list}. All other symbols added to portfolio {portfolio}")
     
 
     return redirect("/portfolio")
@@ -336,7 +315,6 @@ def add_portfolio1():
     name = session.get("user_id")
     portfolio_id = request.form.get("portfolio_id")
     symbols_list = request.form.getlist("symbols[]")
-    screener = "america"
 
     # Remove empty symbols from array
     symbols = []
@@ -346,30 +324,6 @@ def add_portfolio1():
 
     # Make symbols uppercase
     symbols_upper = [symbol.upper() for symbol in symbols]
-    print(symbols_upper)
-
-    # Find exchanges for symbols from tradingview.db
-    conn = sqlite3.connect('tradingview.db')
-    cursor = conn.cursor()
-
-    exchanges = []
-    symbols_upper_list = []
-    for i in range(0, len(symbols_upper)):
-
-        cursor.execute("SELECT exchange FROM tv WHERE symbol = ?", (symbols_upper[i],))
-        rows = cursor.fetchall()
-        
-        for row in range(0, len(rows)):
-            if rows[0][0] != "":
-                exchanges.append(rows[0][0])
-                symbols_upper_list.append(symbols_upper[i])
-
-            # SOMETHING WRONG WITH THIS ERROR - MESSAGE NOT DISPLAYING
-            else:
-                create_errors(f"{symbols_upper[i]} does not exist, all other symbols entered successfully")
-
-    conn.commit()
-    conn.close()
 
     #Get portfolio name that matches portfolio_id from database
     conn = sqlite3.connect('database.db')
@@ -381,35 +335,28 @@ def add_portfolio1():
 
     conn.commit()
     conn.close()
-
-    # Combine symbol and exchange into an array
-    stock_data_upper = list(zip(symbols_upper_list, exchanges))
-    #stock_data_upper = [(symbol.upper(), exchange.upper()) for symbol, exchange in stock_data]
-    print(stock_data_upper)
     
     # INSERT Stocks into database
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
-    # Check that symbol and exchange are correct
+    # Check that symbols are correct
     error_symbol_list = []
-    error_exchange_list = []
-    for i in range(0, len(stock_data_upper)):
-        #check to make sure both fields are completed
-        if stock_data_upper[i][0] != "" or stock_data_upper[i][1] != "":
-            # check to make sure symbol and exchange are correct for TV API
-            if (symbol_check(stock_data_upper[i][0], stock_data_upper[i][1])) == True:
-                cursor.execute("INSERT INTO portfolios (symbol, screener, exchange, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?, ?)", (stock_data_upper[i][0], screener, stock_data_upper[i][1], portfolio, portfolio_id, name))
+    for i in range(0, len(symbols_upper)):
+        #check to make sure field not empty
+        if symbols_upper[i] != "":
+            # check to make sure symbol pulls from yfinance
+            if (symbol_check(symbols_upper[i]) == True):
+                cursor.execute("INSERT INTO portfolios (symbol, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?)", (symbols_upper[i], portfolio, portfolio_id, name))
             else:
-                error_symbol_list.append(stock_data_upper[i][0])
-                error_exchange_list.append(stock_data_upper[i][1])
+                error_symbol_list.append(symbols_upper[i])
     
     conn.commit()
     conn.close()
     
-    # if errors in symbol or exchange found, let the user know what they are
-    if len(error_symbol_list) != 0 or len(error_exchange_list) != 0:
-        return create_errors(f"Incorrect symbols: {error_symbol_list} or incorrect exchanges: {error_exchange_list}. All other symbols added to portfolio {portfolio}")
+    # if errors in symbol, let the user know what they are
+    if len(error_symbol_list) != 0:
+        return create_errors(f"Incorrect symbols: {error_symbol_list}. All other symbols added to portfolio {portfolio}")
     
 
     return redirect("/portfolio")
