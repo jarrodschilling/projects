@@ -1,4 +1,3 @@
-from tradingview_ta import TA_Handler, Exchange, Interval
 from functools import wraps
 from flask import session, redirect, render_template
 import requests
@@ -8,13 +7,27 @@ import yfinance as yf
 from datetime import datetime, timedelta
 import pytz
 
+# Call the yfinance API for data needed
+def api_call(symbol):
+    symbol = symbol
+    start_date = "2022-01-01"
+    end_date = datetime.today().strftime('%Y-%m-%d')
+
+    # Fetch historical stock data
+    data = yf.download(symbol, start=start_date, end=end_date)
+
+    return data
+
+
+# Get current price using API CALL data
 def current_price(data):
     data = data
-    # Get yesterday's closing price
     yesterday_closing_price = data['Close'].iloc[-1]
 
     return yesterday_closing_price
 
+
+# Get exponential moving average using API CALL data and user inputed period
 def ema(data, ema_period):
     data = data
     ema_period = ema_period
@@ -26,6 +39,8 @@ def ema(data, ema_period):
 
     return most_recent_20_ema
 
+
+# Get simple moving average using API CALL data and user inputed period
 def sma(data, sma_period):
     data = data
     sma_period = sma_period
@@ -36,6 +51,7 @@ def sma(data, sma_period):
     return most_recent_50_sma
 
 
+# Iterate list of stocks to determine if they are above trending EMAs/SMAs
 def ma_compute_yf(stocks, portfolio_id, ma_avg):
     portfolio_ma = []
 
@@ -58,17 +74,6 @@ def ma_compute_yf(stocks, portfolio_id, ma_avg):
                 portfolio_ma.append(symbol)
 
     return portfolio_ma
-
-
-def api_call(symbol):
-    symbol = symbol
-    start_date = "2022-01-01"
-    end_date = datetime.today().strftime('%Y-%m-%d')
-
-    # Fetch historical stock data
-    data = yf.download(symbol, start=start_date, end=end_date)
-
-    return data
 
 
 def login_required(f):
@@ -98,20 +103,23 @@ def portfolio_names(port):
 
 
 def symbol_check(symbol):
-    try:
-        api_call(symbol)
-        return True
-    except Exception as e:
+    data = yf.download(symbol)
+    if data.empty:
         return False
+    else:
+        return True
+
 
 def register_errors(problem):
     return render_template('register.html', problem=problem)
 
+
 def login_errors(problem):
     return render_template('login.html', problem=problem)
 
+
 def create_errors(problem):
-    return render_template('create-portfolio.html', problem=problem)
+    return render_template('create-error.html', problem=problem)
 
 
 def is_valid_password(password):

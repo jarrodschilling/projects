@@ -1,61 +1,38 @@
 import sqlite3
-from functions import moving_avgs, login_required, symbol_check, create_errors
-from tradingview_ta import TA_Handler, TradingView, Exchange, Interval, get_multiple_analysis
+from functions import api_call, current_price, symbol_check
+import yfinance as yf
 
-ALPHAVANTAGE_API_KEY = "L2PXBUL4LIYTG2UZ"
+def checker(ticker):
+    data = yf.download(ticker)
+    if data.empty:
+        return False
+    else:
+        return True
 
 
 name = "12"
 portfolio = "port"
 portfolio_id = "portfolio2"
-screener = "america"
+
 
 symbol1 = "JPM"
-exchange1 = "NYSE"
+symbol2 = "XLF"
+symbol3 = "adfasdf"
 
-symbol2 = "asdf"
-exchange2 = ""
+symbols_upper = [symbol1, symbol2, symbol3]
 
-symbol3 = "XLF"
-exchange3 = "AMEX"
-
-symbols_list = [symbol1, symbol2, symbol3]
-#exchanges = [exchange1, exchange2, exchange3]
-
-
-
-symbols = []
-for i in range(0, len(symbols_list)):
-    if symbols_list[i] != "":
-        symbols.append(symbols_list[i])
-
-# Make symbols uppercase
-symbols_upper = [symbol.upper() for symbol in symbols]
-print(symbols_upper)
-
-# Find exchanges for symbols from tradingview.db
-conn = sqlite3.connect('tradingview.db')
-cursor = conn.cursor()
-
-
-exchanges = []
-symbols_upper_list = []
+correct_list = []
+error_symbol_list = []
 for i in range(0, len(symbols_upper)):
+    # check to make sure symbol is correct for yfinance
+    if (checker(symbols_upper[i]) == True):
+        correct_list.append(symbols_upper[i])
+    else:
+        error_symbol_list.append(symbols_upper[i])
 
-    cursor.execute("SELECT exchange FROM tv WHERE symbol = ?", (symbols_upper[i],))
-    rows = cursor.fetchall()
-    
-    for row in range(0, len(rows)):
-        if rows[0][0] != "":
-            print(rows[0][0])
-            exchanges.append(rows[0][0])
-            symbols_upper_list.append(symbols_upper[i])
+print(correct_list)
+print(error_symbol_list)
 
-        elif rows[0][0] == None:
-            print(rows[0][0])
-            print(f"{symbols_upper[i]} does not exist, all other symbols entered successfully")
+#msft = yf.Ticker("adfasd")
 
-print(symbols_upper_list)
-print(exchanges)
-conn.commit()
-conn.close()
+#msft.info

@@ -256,15 +256,12 @@ def create_portfolio():
 
     # Check that symbol and exchange are correct
     error_symbol_list = []
-    error_exchange_list = []
     for i in range(0, len(symbols_upper)):
-        #check to make sure both fields are completed
-        if symbols_upper[i] != "":
-            # check to make sure symbol and exchange are correct for TV API
-            if (symbol_check(symbols_upper[i]) == True):
-                cursor.execute("INSERT INTO portfolios (symbol, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?)", (symbols_upper[i], portfolio, portfolio_id, name))
-            else:
-                error_symbol_list.append(symbols_upper[i])
+        # check to make sure symbol is correct for yfinance
+        if (symbol_check(symbols_upper[i]) == True):
+            cursor.execute("INSERT INTO portfolios (symbol, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?)", (symbols_upper[i], portfolio, portfolio_id, name))
+        else:
+            error_symbol_list.append(symbols_upper[i])
     
     conn.commit()
     conn.close()
