@@ -1,0 +1,23 @@
+Current Portfolios HTML Snippet
+<div class="text-center">
+<a href="/add-portfolio1" class="btn btn-primary mb-3" style="width: 100px; margin: 5px;">Add</a>
+<a href="/delete-portfolio1" class="btn btn-primary mb-3" style="width: 100px; margin: 5px;">Delete</a>
+</div>
+---------------------------------------------------------------------------------
+@app.route("/delete-portfolio1", methods=["GET"])
+@login_required
+def delete_portfolio1_page():
+
+    name = session.get("user_id")
+    portfolio_id = "portfolio1"
+    portfolio = get_port_name(name, portfolio_id)
+    # Render current portfolios function
+---------------------------------------------------------------------------------
+@app.route("/delete-portfolio1", methods=["POST"])
+@login_required
+def delete_portfolio1():
+
+    name = session.get("user_id")
+    portfolio_id = "portfolio1"
+    symbols = request.form.getlist("symbols[]")
+    # Delete symbols from database function

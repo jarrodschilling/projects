@@ -1,29 +1,8 @@
 import sqlite3
-from functions import api_call, current_price, symbol_check, create_errors
+from functions import api_call, current_price, symbol_check, create_errors, get_port_name
 import yfinance as yf
 
-def checker(ticker):
-    data = yf.download(ticker)
-    if data.empty:
-        return False
-    else:
-        return True
-
-
-name = "14"
-portfolio = "okay"
-portfolio_id = "portfolio1"
-
-
-symbol1 = "XLE"
-symbol2 = "XLF"
-symbol3 = "adfasdf"
-
-symbol_list = [symbol1, symbol2, symbol3]
-error_symbol_list = []
-
-
-def add_symbols(symbols_list, name, portfolio, portfolio_id, error_symbol_list):
+def add_symbols(symbols_list, name, portfolio, portfolio_id):
     # Remove empty symbols from array
     symbols = []
     for i in range(0, len(symbols_list)):
@@ -53,8 +32,17 @@ def add_symbols(symbols_list, name, portfolio, portfolio_id, error_symbol_list):
     # if errors in symbol, let the user know what they are
     return error_symbol_list
 
-add_symbols(symbol_list, name, portfolio, portfolio_id, error_symbol_list)
+
+name = "20"
+portfolio = "ports 1"
+portfolio_id = "portfolio1"
 
 
-if len(error_symbol_list) != 0:
-        print(error_symbol_list)
+symbol1 = "XLB"
+symbol2 = "XLK"
+symbol3 = "adfasdf"
+
+symbol_list = [symbol1, symbol2, symbol3]
+error_symbol_list = add_symbols(symbol_list, name, portfolio, portfolio_id)
+
+print(error_symbol_list)

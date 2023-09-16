@@ -103,6 +103,21 @@ def portfolio_names(port):
     return port_name
 
 
+# FOR ADD TO PORTFOLIO - Get portfolio name that matches portfolio_id from database
+def get_port_name(name, portfolio_id):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT portfolio FROM portfolios WHERE users_id = ? AND portfolio_id = ?", (name, portfolio_id,))
+    rows = cursor.fetchall()
+    portfolio = rows[0][0]
+
+    conn.commit()
+    conn.close()
+
+    return portfolio
+
+
 def symbol_check(symbol):
     data = yf.download(symbol)
     if data.empty:
