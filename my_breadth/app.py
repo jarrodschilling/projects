@@ -3,7 +3,7 @@ from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
-from functions import login_required, portfolio_names, symbol_check, register_errors, login_errors, is_valid_password, create_errors, ma_compute_yf
+from functions import login_required, portfolio_names, symbol_check, register_errors, login_errors, is_valid_password, create_errors, ma_compute_yf, add_symbols
 # flask --app example_app.py --debug run
 
 
@@ -238,38 +238,14 @@ def create_portfolio():
     portfolio = request.form.get("portfolio")
     portfolio_id = request.form.get("portfolio_id")
     symbols_list = request.form.getlist("symbols[]")
-
-
-    # Remove empty symbols from array
-    symbols = []
-    for i in range(0, len(symbols_list)):
-        if symbols_list[i] != "":
-            symbols.append(symbols_list[i])
-    
-    # Make symbols uppercase
-    symbols_upper = [symbol.upper() for symbol in symbols]
-
-    
-    # INSERT Stocks into database
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-
-    # Check that symbol and exchange are correct
     error_symbol_list = []
-    for i in range(0, len(symbols_upper)):
-        # check to make sure symbol is correct for yfinance
-        if (symbol_check(symbols_upper[i]) == True):
-            cursor.execute("INSERT INTO portfolios (symbol, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?)", (symbols_upper[i], portfolio, portfolio_id, name))
-        else:
-            error_symbol_list.append(symbols_upper[i])
+
+    # Check that symbols are correct using yfinance and if they are add to database
+    add_symbols(symbols_list, name, portfolio, portfolio_id, error_symbol_list)
     
-    conn.commit()
-    conn.close()
-    
-    # if errors in symbol or exchange found, let the user know what they are
+    # For any symbols that are incorrect, let the user know what they are
     if len(error_symbol_list) != 0:
         return create_errors(f"Incorrect symbols: {error_symbol_list}. All other symbols added to portfolio {portfolio}")
-    
 
     return redirect("/portfolio")
 
@@ -313,47 +289,7 @@ def add_portfolio1():
     portfolio_id = request.form.get("portfolio_id")
     symbols_list = request.form.getlist("symbols[]")
 
-    # Remove empty symbols from array
-    symbols = []
-    for i in range(0, len(symbols_list)):
-        if symbols_list[i] != "":
-            symbols.append(symbols_list[i])
-
-    # Make symbols uppercase
-    symbols_upper = [symbol.upper() for symbol in symbols]
-
-    #Get portfolio name that matches portfolio_id from database
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT portfolio FROM portfolios WHERE users_id = ? AND portfolio_id = ?", (name, portfolio_id,))
-    rows = cursor.fetchall()
-    portfolio = rows[0][0]
-
-    conn.commit()
-    conn.close()
     
-    # INSERT Stocks into database
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-
-    # Check that symbols are correct
-    error_symbol_list = []
-    for i in range(0, len(symbols_upper)):
-        #check to make sure field not empty
-        if symbols_upper[i] != "":
-            # check to make sure symbol pulls from yfinance
-            if (symbol_check(symbols_upper[i]) == True):
-                cursor.execute("INSERT INTO portfolios (symbol, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?)", (symbols_upper[i], portfolio, portfolio_id, name))
-            else:
-                error_symbol_list.append(symbols_upper[i])
-    
-    conn.commit()
-    conn.close()
-    
-    # if errors in symbol, let the user know what they are
-    if len(error_symbol_list) != 0:
-        return create_errors(f"Incorrect symbols: {error_symbol_list}. All other symbols added to portfolio {portfolio}")
     
 
     return redirect("/portfolio")
