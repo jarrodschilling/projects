@@ -58,7 +58,7 @@ def ma_compute_yf(stocks, portfolio_id, ma_avg):
 
     for stock in stocks:
         symbol = stock[1]
-        portfolio = stock[3]
+        portfolio = stock[4]
         data = api_call(symbol)
         current = current_price(data)
         ema20 = ema(data, 20)
@@ -94,7 +94,7 @@ def login_required(f):
 def portfolio_names(port):
     while True:
         try:
-            port_name = port[0][2]
+            port_name = port[0][3]
             break
         except IndexError:
             port_name = "none"
@@ -123,8 +123,9 @@ def symbol_check(symbol):
     if data.empty:
         return False
     else:
-        return True
-
+        name = yf.Ticker(symbol)
+        output = name.info['shortName']
+        return output
 
 def add_symbols(symbols_list, name, portfolio, portfolio_id, error_symbol_list):
     # Remove empty symbols from array
@@ -145,16 +146,14 @@ def add_symbols(symbols_list, name, portfolio, portfolio_id, error_symbol_list):
     error_symbol_list = error_symbol_list
     for i in range(0, len(symbols_upper)):
         # check to make sure symbol is correct for yfinance
-        if (symbol_check(symbols_upper[i]) == True):
-            cursor.execute("INSERT INTO portfolios (symbol, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?)", (symbols_upper[i], portfolio, portfolio_id, name))
+        stock_name = symbol_check(symbols[i])
+        if (stock_name != False):
+            cursor.execute("INSERT INTO portfolios (symbol, stockname, portfolio, portfolio_id, users_id) VALUES(?, ?, ?, ?, ?)", (symbols_upper[i], stock_name, portfolio, portfolio_id, name))
         else:
             error_symbol_list.append(symbols_upper[i])
     
     conn.commit()
     conn.close()
-
-    # if errors in symbol, let the user know what they are
-    return error_symbol_list
 
 
 def register_errors(problem):

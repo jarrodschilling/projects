@@ -19,13 +19,13 @@
                     </thead>
                     <tbody>
                             {% for stock in investments %}
-                            {% if stock[3] == "portfolio1" %}
+                            {% if stock[4] == "portfolio1" %}
                             <tr>
                                 <td>
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value= "{{ stock[1] }}" id="symbol", name="symbols[]">
                                         <label class="form-check-label" for="symbol">
-                                          {{ stock[1] }}
+                                          ({{ stock[1] }}) {{ stock[2] }}
                                         </label>
                                       </div>
                                 </td>
