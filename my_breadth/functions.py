@@ -55,9 +55,11 @@ def sma(data, sma_period):
 # Iterate list of stocks to determine if they are above trending EMAs/SMAs
 def ma_compute_yf(stocks, portfolio_id, ma_avg):
     portfolio_ma = []
+    stock_name = []
 
     for stock in stocks:
         symbol = stock[1]
+        name = stock[2]
         portfolio = stock[4]
         data = api_call(symbol)
         current = current_price(data)
@@ -69,12 +71,19 @@ def ma_compute_yf(stocks, portfolio_id, ma_avg):
         if portfolio == portfolio_id:
             if (ma_avg == "ema20") and current > ema20 and ema20 > sma50 and sma50 > sma200:
                 portfolio_ma.append(symbol)
+                stock_name.append(name)
             elif (ma_avg == "sma50") and current > sma50 and sma50 > sma200:
                 portfolio_ma.append(symbol)
+                stock_name.append(name)
             elif (ma_avg == "sma200") and current > sma200:
                 portfolio_ma.append(symbol)
+                stock_name.append(name)
 
-    return portfolio_ma
+    result = []
+    for x, y in zip(portfolio_ma, stock_name):
+        result.append([x, y])
+    
+    return result
 
 
 def login_required(f):
