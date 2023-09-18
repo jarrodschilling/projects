@@ -10,7 +10,7 @@
 
         <div class="row">
             <div class="col-md-4">
-                <form action="/delete-portfolio1" method="POST">
+                <form action="/delete-portfolio" method="POST">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -23,6 +23,7 @@
                             <tr>
                                 <td>
                                     <div class="form-check">
+                                        <input type="hidden" name="id" value="1">
                                         <input class="form-check-input" type="checkbox" value= "{{ stock[1] }}" id="symbol", name="symbols[]">
                                         <label class="form-check-label" for="symbol">
                                           ({{ stock[1] }}) {{ stock[2] }}

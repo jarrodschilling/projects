@@ -290,35 +290,7 @@ def add_portfolio1():
     return redirect("/portfolio")
 
 
-# -------------- DELETE FROM PORTFOLIO 1 PAGE [GET] --------------------------------------------------------------------
-
-@app.route("/delete-portfolio1", methods=["GET"])
-@login_required
-def delete_portfolio1_page():
-
-    name = session.get("user_id")
-    portfolio_id = "portfolio1"
-    portfolio = get_port_name(name, portfolio_id)
-
-    # Render current portfolios
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    
-    cursor.execute("SELECT * FROM portfolios WHERE users_id = ?", (name,))
-    investments = cursor.fetchall()
-    
-    cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio1' AND users_id = ?", (name,))
-    portfolio1 = cursor.fetchall()
-    
-    
-    portfolio1_name = portfolio_names(portfolio1)
-
-    conn.commit()
-    conn.close()
-
-    return render_template("delete-portfolio1.html", portfolio_id=portfolio_id, portfolio=portfolio, investments=investments, portfolio1=portfolio1, portfolio1_name=portfolio1_name)
-
-#-------------------------------------------
+# -------------- DELETE FROM PORTFOLIO PAGE [GET] --------------------------------------------------------------------
 
 @app.route("/delete-portfolio/<id>", methods=["GET"])
 @login_required
@@ -337,25 +309,33 @@ def delete_portfolio(id):
     
     cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio1' AND users_id = ?", (name,))
     portfolio1 = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio2' AND users_id = ?", (name,))
+    portfolio2 = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM portfolios WHERE portfolio_id = 'portfolio3' AND users_id = ?", (name,))
+    portfolio3 = cursor.fetchall()
     
     
     portfolio1_name = portfolio_names(portfolio1)
+    portfolio2_name = portfolio_names(portfolio2)
+    portfolio3_name = portfolio_names(portfolio3)
 
     conn.commit()
     conn.close()
 
-    return render_template("delete-portfolio1.html", portfolio_id=portfolio_id, portfolio=portfolio, investments=investments, portfolio1=portfolio1, portfolio1_name=portfolio1_name)
+    return render_template(f"delete-portfolio{id}.html", portfolio_id=portfolio_id, portfolio=portfolio, investments=investments, portfolio1=portfolio1, portfolio1_name=portfolio1_name, portfolio2=portfolio2, portfolio2_name=portfolio2_name, portfolio3=portfolio3, portfolio3_name=portfolio3_name)
 
 
+# -------------- DELETE FROM PORTFOLIO [POST] --------------------------------------------------------------------
 
-# -------------- DELETE FROM PORTFOLIO 1 [POST] --------------------------------------------------------------------
-
-@app.route("/delete-portfolio1", methods=["POST"])
+@app.route("/delete-portfolio", methods=["POST"])
 @login_required
-def delete_portfolio1():
+def delete_portfolio_post():
 
     name = session.get("user_id")
-    portfolio_id = "portfolio1"
+    id = request.form.get("id")
+    portfolio_id = f"portfolio{id}"
     symbols = request.form.getlist("symbols[]")
 
     # Delete symbols in symbol list from database
@@ -369,6 +349,7 @@ def delete_portfolio1():
     conn.close()
 
     return redirect("/portfolio")
+
 
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
