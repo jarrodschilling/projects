@@ -144,12 +144,24 @@ def add_symbols(symbols_list, name, portfolio, portfolio_id, error_symbol_list):
             symbols.append(symbols_list[i])
     
     # Make symbols uppercase
-    symbols_upper = [symbol.upper() for symbol in symbols]
+    symbols_upper_data = [symbol.upper() for symbol in symbols]
 
     
     # INSERT Stocks into database
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
+
+    # Check that symbol not already in database portfolio
+    cursor.execute("SELECT symbol FROM portfolios WHERE users_id = ? AND portfolio_id = ?", (name, portfolio_id))
+    data = cursor.fetchall()
+    stocks = []
+    for x in range(0, len(data)):
+        stocks.append(data[x][0])
+        
+    symbols_upper = []
+    for element in symbols_upper_data:
+        if element not in stocks:
+            symbols_upper.append(element)
 
     # Check that symbol and exchange are correct
     error_symbol_list = error_symbol_list
