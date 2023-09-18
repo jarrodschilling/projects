@@ -11,25 +11,23 @@ portfolio_id = "portfolio1"
 symbol1 = "XLB"
 symbol2 = "XLK"
 symbol3 = "adfasdf"
-#symbol_list = [symbol1, symbol2, symbol3]
+symbol_list = [symbol1, symbol2, symbol3]
 
 name = 20
-
+new_list = []
 conn = sqlite3.connect('database.db')
 cursor = conn.cursor()
 
-cursor.execute("SELECT * FROM portfolios WHERE users_id = ?", (name,))
-stocks = cursor.fetchall()
 
+cursor.execute("SELECT symbol FROM portfolios WHERE users_id = ? AND portfolio_id = ?", (name, portfolio_id))
+stocks = cursor.fetchall()
+for i in range(0, len(symbol_list)):
+    for j in range(0, len(stocks)):
+        if symbol_list[i] != stocks[j]:
+            new_list.append(symbol_list[i])
+
+print(stocks)
+print(new_list)
 conn.commit()
 conn.close()
 
-tickers, names = ma_compute_yf(stocks, portfolio_id, "sma200")
-
-result = []
-
-for x, y in zip(tickers, names):
-    result.append([x, y])
-
-print(result)
-print(result[0][0], result[0][1])

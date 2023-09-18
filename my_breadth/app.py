@@ -256,22 +256,22 @@ def create_portfolio():
 
 # -------------- ADD PORTFOLIO 1 PAGE [GET] --------------------------------------------------------------------
 
-@app.route("/add-portfolio1", methods=["GET"])
+@app.route("/add-portfolio/<id>", methods=["GET"])
 @login_required
-def add_portfolio1_page():
+def add_portfolio_page(id):
 
     name = session.get("user_id")
-    portfolio_id = "portfolio1"
+    portfolio_id = f"portfolio{id}"
     portfolio = get_port_name(name, portfolio_id)
 
-    return render_template("add-portfolio1.html", portfolio_id=portfolio_id, portfolio=portfolio)
+    return render_template("add-portfolio.html", portfolio_id=portfolio_id, portfolio=portfolio)
 
 
 # -------------- ADD TO PORTFOLIO 1 [POST] --------------------------------------------------------------------
 
-@app.route("/add-portfolio1", methods=["POST"])
+@app.route("/add-portfolio", methods=["POST"])
 @login_required
-def add_portfolio1():
+def add_portfolio():
 
     # Pull data from user form
     name = session.get("user_id")
