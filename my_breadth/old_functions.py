@@ -35,3 +35,14 @@ def add_symbols(symbols_list, name, portfolio, portfolio_id, error_symbol_list):
 
     # if errors in symbol, let the user know what they are
     return error_symbol_list
+
+
+def api_call(symbol):
+    symbol = symbol
+    start_date = "2022-01-01"
+    end_date = datetime.today().strftime('%Y-%m-%d')
+
+    # Fetch historical stock data
+    data = yf.download(symbol, start=start_date, end=end_date)
+
+    return data

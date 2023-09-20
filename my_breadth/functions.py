@@ -8,14 +8,22 @@ from datetime import datetime, timedelta
 import pytz
 import sqlite3
 
-# Call the yfinance API for data needed
+# Global variables for caching data
+data_cache = {}
+
+# Call the yfinance API for data needed and cache it
 def api_call(symbol):
-    symbol = symbol
+    if symbol in data_cache:
+        return data_cache[symbol]
+    
     start_date = "2022-01-01"
     end_date = datetime.today().strftime('%Y-%m-%d')
 
     # Fetch historical stock data
     data = yf.download(symbol, start=start_date, end=end_date)
+    
+    # Cache the data for future use
+    data_cache[symbol] = data
 
     return data
 
@@ -52,22 +60,34 @@ def sma(data, sma_period):
     return most_recent_50_sma
 
 
+# Make batched API CALLS
+def batch_api_call(symbols):
+    data = {}
+    for symbol in symbols:
+        data[symbol] = api_call(symbol)
+    return data
+
+
 # Iterate list of stocks to determine if they are above trending EMAs/SMAs
 def ma_compute_yf(stocks, portfolio_id, ma_avg):
     portfolio_ma = []
     stock_name = []
 
+    # Extract unique symbols from stocks
+    symbols_to_fetch = set(stock[1] for stock in stocks)
+
+    # Batch API call for all symbols
+    data = batch_api_call(symbols_to_fetch)
+
     for stock in stocks:
         symbol = stock[1]
         name = stock[2]
         portfolio = stock[4]
-        data = api_call(symbol)
-        current = current_price(data)
-        ema20 = ema(data, 20)
-        sma50 = sma(data, 50)
-        sma200 = sma(data, 200)
+        current = current_price(data[symbol])
+        ema20 = ema(data[symbol], 20)
+        sma50 = sma(data[symbol], 50)
+        sma200 = sma(data[symbol], 200)
         
-
         if portfolio == portfolio_id:
             if (ma_avg == "ema20") and current > ema20 and ema20 > sma50 and sma50 > sma200:
                 portfolio_ma.append(symbol)
